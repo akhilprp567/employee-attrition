@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Employees - Employee Attrition System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="bi bi-people"></i> Employees
+                </h1>
+                <p class="text-muted">Manage employee data with AI insights</p>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                <i class="bi bi-plus-circle"></i> Add Employee
+            </button>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Job Role</th>
+                        <th>Salary</th>
+                        <th>Risk</th>
+                        <th>AI Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th> <!-- ✅ NEW -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td>{{ emp.employee_id }}</td>
+                        <td>{{ emp.name }}</td>
+                        <td>{{ emp.department or "N/A" }}</td>
+                        <td>{{ emp.job_role or "N/A" }}</td>
+                        <td>₹{{ emp.monthly_income or 0 }}</td>
+
+                        <!-- RISK -->
+                        <td>
+                            {% if emp.attrition_risk_score %}
+                                {% set risk = emp.attrition_risk_score %}
+                                {% if risk > 0.67 %}
+                                    <span class="badge bg-danger">{{ (risk*100)|round(2) }}%</span>
+                                {% elif risk > 0.33 %}
+                                    <span class="badge bg-warning text-dark">{{ (risk*100)|round(2) }}%</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ (risk*100)|round(2) }}%</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- AI REASON -->
+                        <td>{{ emp.attrition_reason or "Stable" }}</td>
+
+                        <td>
+                            <span class="badge bg-info">{{ emp.employment_status }}</span>
+                        </td>
+
+                        <!-- ✅ ACTION BUTTONS -->
+                        <td>
+                            <!-- EDIT -->
+                            <button class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editModal{{ emp.id }}">
+                                ✏️
+                            </button>
+
+                            <!-- DELETE -->
+                            <a href="{{ url_for('dashboard.delete_employee', id=emp.id) }}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Delete this employee?')">
+                               🗑️
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ================= ADD EMPLOYEE ================= -->
+<div class="modal fade" id="addEmployeeModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>Add Employee</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="{{ url_for('dashboard.add_employee') }}">
+
+                    <input class="form-control mb-2" name="employee_id" placeholder="Employee ID" required>
+                    <input class="form-control mb-2" name="name" placeholder="Name" required>
+
+                    <input class="form-control mb-2" name="age" placeholder="Age">
+                    <input class="form-control mb-2" name="department" placeholder="Department">
+                    <input class="form-control mb-2" name="job_role" placeholder="Job Role">
+
+                    <input class="form-control mb-2" name="monthly_income" placeholder="Monthly Income (₹)" required>
+
+                    <input class="form-control mb-2" name="job_satisfaction" placeholder="Job Satisfaction (1-4)">
+                    <input class="form-control mb-2" name="work_life_balance" placeholder="Work Life Balance (1-4)">
+                    <input class="form-control mb-2" name="years_at_company" placeholder="Years at Company">
+                    <input class="form-control mb-2" name="years_in_role" placeholder="Years in Role">
+                    <input class="form-control mb-2" name="years_since_promotion" placeholder="Years Since Promotion">
+                    <input class="form-control mb-2" name="distance" placeholder="Distance From Home (km)">
+
+                    <button class="btn btn-primary w-100">Save</button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ================= EDIT MODALS ================= -->
+{% for emp in employees %}
+<div class="modal fade" id="editModal{{ emp.id }}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>Edit Employee</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <form method="POST" action="{{ url_for('dashboard.edit_employee', id=emp.id) }}">
+
+                    <input class="form-control mb-2" name="name" value="{{ emp.name }}">
+                    <input class="form-control mb-2" name="age" value="{{ emp.age }}">
+                    <input class="form-control mb-2" name="department" value="{{ emp.department }}">
+                    <input class="form-control mb-2" name="job_role" value="{{ emp.job_role }}">
+                    <input class="form-control mb-2" name="monthly_income" value="{{ emp.monthly_income }}">
+
+                    <button class="btn btn-success w-100">Update</button>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

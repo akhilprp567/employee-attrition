@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}{{ employee.name }} - Employee Attrition System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{{ url_for('dashboard.employees') }}" class="btn btn-outline-secondary mb-3">
+                <i class="bi bi-arrow-left"></i> Back to Employees
+            </a>
+            <h1 class="display-6 fw-bold mb-2">
+                <i class="bi bi-person"></i> {{ employee.name }}
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Employee Info Card -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> Personal Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Employee ID</p>
+                            <h6 class="mb-3"><code>{{ employee.employee_id }}</code></h6>
+
+                            <p class="text-muted mb-1">Age</p>
+                            <h6 class="mb-3">{{ employee.age or 'N/A' }} years</h6>
+
+                            <p class="text-muted mb-1">Gender</p>
+                            <h6 class="mb-3">{{ employee.gender or 'N/A' }}</h6>
+
+                            <p class="text-muted mb-1">Education</p>
+                            <h6 class="mb-3">{{ employee.education or 'N/A' }}</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Department</p>
+                            <h6 class="mb-3"><span class="badge bg-primary">{{ employee.department or 'N/A' }}</span></h6>
+
+                            <p class="text-muted mb-1">Job Role</p>
+                            <h6 class="mb-3">{{ employee.job_role or 'N/A' }}</h6>
+
+                            <p class="text-muted mb-1">Employment Status</p>
+                            <h6 class="mb-3">
+                                {% if employee.employment_status == 'Active' %}
+                                    <span class="badge bg-success">{{ employee.employment_status }}</span>
+                                {% elif employee.employment_status == 'Attrited' %}
+                                    <span class="badge bg-danger">{{ employee.employment_status }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning">{{ employee.employment_status }}</span>
+                                {% endif %}
+                            </h6>
+
+                            <p class="text-muted mb-1">Hire Date</p>
+                            <h6 class="mb-3">{{ employee.hire_date.strftime('%d-%m-%Y') if employee.hire_date else 'N/A' }}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Information Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-briefcase"></i> Work Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Monthly Income</p>
+                            <h6 class="mb-3 text-primary">
+                                ₹{{ "%.0f" | format(employee.monthly_income) if employee.monthly_income else 'N/A' }}
+                            </h6>
+
+                            <p class="text-muted mb-1">Years at Company</p>
+                            <h6 class="mb-3">{{ employee.years_at_company or 0 }} years</h6>
+
+                            <p class="text-muted mb-1">Distance from Home</p>
+                            <h6 class="mb-3">{{ employee.distance_from_home or 0 }} km</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-muted mb-1">Years in Current Role</p>
+                            <h6 class="mb-3">{{ employee.years_in_current_role or 0 }} years</h6>
+
+                            <p class="text-muted mb-1">Years Since Last Promotion</p>
+                            <h6 class="mb-3">{{ employee.years_since_last_promotion or 0 }} years</h6>
+
+                            <p class="text-muted mb-1">Attrition Status</p>
+                            <h6 class="mb-3">
+                                {% if employee.attrition %}
+                                    <span class="badge bg-danger">Has Left</span>
+                                {% else %}
+                                    <span class="badge bg-success">Currently Employed</span>
+                                {% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Satisfaction & Risk Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-emoji-smile"></i> Satisfaction Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-2">Job Satisfaction</p>
+                    <div class="mb-3">
+                        <div class="progress" style="height: 25px;">
+                            {% if employee.job_satisfaction %}
+                                <div class="progress-bar bg-success" style="width: {{ (employee.job_satisfaction / 4) * 100 }}%">
+                                    {{ employee.job_satisfaction }}/4
+                                </div>
+                            {% else %}
+                                <div class="progress-bar bg-secondary text-white">N/A</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <p class="text-muted mb-2">Work-Life Balance</p>
+                    <div class="mb-3">
+                        <div class="progress" style="height: 25px;">
+                            {% if employee.work_life_balance %}
+                                <div class="progress-bar bg-info" style="width: {{ (employee.work_life_balance / 4) * 100 }}%">
+                                    {{ employee.work_life_balance }}/4
+                                </div>
+                            {% else %}
+                                <div class="progress-bar bg-secondary text-white">N/A</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attrition Risk Card -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Attrition Risk Assessment
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if employee.attrition_risk_score is not none %}
+                        <div class="mb-3">
+                            <div class="progress mx-auto" style="height: 30px; width: 80%;">
+                                {% if employee.attrition_risk_score >= 0.67 %}
+                                    <div class="progress-bar bg-danger" style="width: {{ employee.attrition_risk_score * 100 }}%">
+                                        {{ "%.0f" | format(employee.attrition_risk_score * 100) }}%
+                                    </div>
+                                {% elif employee.attrition_risk_score >= 0.33 %}
+                                    <div class="progress-bar bg-warning" style="width: {{ employee.attrition_risk_score * 100 }}%">
+                                        {{ "%.0f" | format(employee.attrition_risk_score * 100) }}%
+                                    </div>
+                                {% else %}
+                                    <div class="progress-bar bg-success" style="width: {{ employee.attrition_risk_score * 100 }}%">
+                                        {{ "%.0f" | format(employee.attrition_risk_score * 100) }}%
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h3 class="mb-3">
+                            {% if employee.attrition_risk_score >= 0.67 %}
+                                <span class="badge bg-danger display-6">{{ risk_category }}</span>
+                            {% elif employee.attrition_risk_score >= 0.33 %}
+                                <span class="badge bg-warning display-6">{{ risk_category }}</span>
+                            {% else %}
+                                <span class="badge bg-success display-6">{{ risk_category }}</span>
+                            {% endif %}
+                        </h3>
+
+                        <p class="text-muted">
+                            Risk Score: <strong>{{ "%.3f" | format(employee.attrition_risk_score) }}</strong>
+                        </p>
+
+                        {% if employee.attrition_risk_score >= 0.67 %}
+                            <div class="alert alert-danger mt-3">
+                                <strong>Action Required!</strong> This employee requires immediate attention for retention.
+                            </div>
+                        {% elif employee.attrition_risk_score >= 0.33 %}
+                            <div class="alert alert-warning mt-3">
+                                <strong>Monitor!</strong> Consider proactive engagement strategies.
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success mt-3">
+                                <strong>Low Risk!</strong> Employee appears satisfied and likely to stay.
+                            </div>
+                        {% endif %}
+
+                        <button class="btn btn-warning w-100 mt-3">
+                            <i class="bi bi-chat-left-text"></i> Schedule Engagement
+                        </button>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">Risk assessment not yet available for this employee.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Employee Attrition System{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📊 Analytics Dashboard</h2>
+        <span class="badge bg-dark">ML Insights</span>
+    </div>
+
+    <!-- TOP CARDS -->
+    <div class="row g-3 mb-4 text-center">
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 rounded-4">
+                <h6>Total Employees</h6>
+                <h3>{{ total }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 rounded-4">
+                <h6>Attrited</h6>
+                <h3 class="text-danger">{{ attrited }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 rounded-4">
+                <h6>Avg Salary</h6>
+                <h3 class="text-primary">₹{{ "%.0f"|format(avg_salary) }}</h3>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= JOB ROLE CHART ================= -->
+    <div class="card p-4 shadow rounded-4 mb-4">
+        <h5>📌 Job Role Distribution</h5>
+        <canvas id="roleChart"></canvas>
+    </div>
+
+    <!-- ================= RISK BY ROLE ================= -->
+    <div class="card p-4 shadow rounded-4 mb-4">
+        <h5>⚠️ Risk by Job Role (%)</h5>
+        <canvas id="riskChart"></canvas>
+    </div>
+
+    <!-- ================= CHARTS ================= -->
+    <div class="row g-3 mb-4">
+
+        <!-- SALARY -->
+        <div class="col-md-6">
+            <div class="card p-3 shadow rounded-4">
+                <h6>Salary Distribution</h6>
+                <canvas id="salaryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- EXPERIENCE -->
+        <div class="col-md-6">
+            <div class="card p-3 shadow rounded-4">
+                <h6>Experience Analysis</h6>
+                <canvas id="experienceChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= ML INSIGHTS ================= -->
+    <div class="card p-4 shadow rounded-4">
+        <h5>🤖 ML Insights</h5>
+
+        <ul>
+            <li>Employees with low salary and poor satisfaction have higher attrition risk</li>
+            <li>Long commute distance increases attrition probability</li>
+            <li>Work-life balance plays a key role in retention</li>
+            <li>High-risk employees should be monitored by HR</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const roleLabels = {{ role_labels | tojson }};
+const roleCounts = {{ role_counts | tojson }};
+const roleRisk = {{ role_risk | tojson }};
+const salaryData = {{ salary_brackets | tojson }};
+const expData = {{ experience_data | tojson }};
+
+// ROLE COUNT
+new Chart(document.getElementById("roleChart"), {
+    type: "bar",
+    data: {
+        labels: roleLabels,
+        datasets: [{
+            label: "Employees",
+            data: roleCounts
+        }]
+    }
+});
+
+// ROLE RISK
+new Chart(document.getElementById("riskChart"), {
+    type: "bar",
+    data: {
+        labels: roleLabels,
+        datasets: [{
+            label: "Risk %",
+            data: roleRisk
+        }]
+    }
+});
+
+// SALARY
+new Chart(document.getElementById("salaryChart"), {
+    type: "doughnut",
+    data: {
+        labels: Object.keys(salaryData),
+        datasets: [{
+            data: Object.values(salaryData)
+        }]
+    }
+});
+
+// EXPERIENCE
+new Chart(document.getElementById("experienceChart"), {
+    type: "line",
+    data: {
+        labels: Object.keys(expData),
+        datasets: [{
+            label: "Employees",
+            data: Object.values(expData),
+            tension: 0.3
+        }]
+    }
+});
+
+</script>
+
+{% endblock %}

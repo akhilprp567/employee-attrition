@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Employee Attrition System{% endblock %}
+
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow" style="width: 100%; max-width: 500px;">
+        <div class="card-body p-5">
+
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-person-plus display-4 text-success"></i>
+                </div>
+                <h2>Create Account</h2>
+                <p class="text-muted">Join Employee Attrition System</p>
+            </div>
+
+            <!-- ✅ FIXED FORM -->
+            <form method="POST" action="{{ url_for('auth.signup') }}">
+
+                <div class="mb-3">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" name="full_name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Department</label>
+                    <select class="form-select" name="department">
+                        <option value="">Select Department</option>
+                        <option value="HR">Human Resources</option>
+                        <option value="Sales">Sales</option>
+                        <option value="IT">IT</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Confirm Password</label>
+                    <input type="password" class="form-control" name="confirm_password" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 py-2">
+                    Create Account
+                </button>
+
+            </form>
+
+            <hr>
+
+            <div class="text-center">
+                <a href="{{ url_for('auth.login') }}">
+                    Already have an account? Sign in here
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

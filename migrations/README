@@ -1,0 +1,21 @@
+# Employee Attrition Prediction System
+
+## Description
+Machine Learning based HR analytics system to predict employee attrition.
+
+## Features
+- Login / Signup
+- Dashboard
+- Employee management
+- Attrition prediction
+
+## Setup
+
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python run.py
+
+## Login
+Username: demo
+Password: demo123

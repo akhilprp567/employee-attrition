@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">📊 Employee Analytics Dashboard</h3>
+    <span class="badge bg-dark px-3 py-2">Welcome, {{ current_user.username }}</span>
+</div>
+
+<!-- TOP CARDS -->
+<div class="row g-3 mb-4">
+
+    {% set cards = [
+        ('Total Employees', total_employees, 'primary'),
+        ('Attrited', total_attrited, 'danger'),
+        ('Attrition Rate', attrition_rate ~ '%', 'warning'),
+        ('High Risk', high_risk_count, 'info')
+    ] %}
+
+    {% for title, value, color in cards %}
+    <div class="col-md-3">
+        <div class="card shadow border-0 rounded-4 p-3">
+            <h6 class="text-muted">{{ title }}</h6>
+            <h2 class="text-{{ color }}">{{ value }}</h2>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+
+<!-- CHARTS -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow rounded-4">
+            <h6>Department Distribution</h6>
+            <canvas id="deptChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow rounded-4">
+            <h6>Age Distribution</h6>
+            <canvas id="ageChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow rounded-4">
+            <h6>Salary by Department</h6>
+            <canvas id="salaryChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- RISK OVERVIEW -->
+<div class="row mb-4">
+
+    <div class="col-md-6">
+        <div class="card p-4 shadow rounded-4">
+            <h5>Risk Overview</h5>
+
+            <div class="d-flex justify-content-around mt-3">
+
+                <div class="text-center">
+                    <h4 class="text-success">
+                        {{ employees|selectattr('attrition_risk_score','lt',0.25)|list|length }}
+                    </h4>
+                    <small>Low</small>
+                </div>
+
+                <div class="text-center">
+                    <h4 class="text-warning">
+                        {{ employees|selectattr('attrition_risk_score','ge',0.25)
+                        |selectattr('attrition_risk_score','lt',0.6)|list|length }}
+                    </h4>
+                    <small>Medium</small>
+                </div>
+
+                <div class="text-center">
+                    <h4 class="text-danger">
+                        {{ employees|selectattr('attrition_risk_score','ge',0.6)|list|length }}
+                    </h4>
+                    <small>High</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card p-4 shadow rounded-4 text-center">
+            <h5>Average Salary</h5>
+            <h2 class="text-primary">₹{{ "%.0f"|format(avg_salary) }}</h2>
+        </div>
+    </div>
+
+</div>
+
+<!-- TABLE -->
+<div class="card p-4 shadow rounded-4 mb-4">
+    <h5>Top Risk Employees</h5>
+
+    <table class="table table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Risk</th>
+                <th>Status</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for emp in at_risk_employees %}
+            <tr>
+                <td>{{ emp.name }}</td>
+                <td>{{ emp.department }}</td>
+                <td>{{ "%.1f"|format(emp.attrition_risk_score*100) }}%</td>
+
+                <td>
+                    {% if emp.attrition_risk_score >= 0.6 %}
+                        <span class="badge bg-danger">High</span>
+                    {% elif emp.attrition_risk_score >= 0.25 %}
+                        <span class="badge bg-warning text-dark">Medium</span>
+                    {% else %}
+                        <span class="badge bg-success">Low</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ emp.attrition_reason }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const deptData = {{ dept_data | tojson }};
+const ageData = {{ age_groups | tojson }};
+const salaryData = {{ salary_data_dept | tojson }};
+
+new Chart(document.getElementById("deptChart"), {
+    type: "doughnut",
+    data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData) }] }
+});
+
+new Chart(document.getElementById("ageChart"), {
+    type: "bar",
+    data: { labels: Object.keys(ageData), datasets: [{ data: Object.values(ageData) }] }
+});
+
+new Chart(document.getElementById("salaryChart"), {
+    type: "bar",
+    data: { labels: Object.keys(salaryData), datasets: [{ data: Object.values(salaryData) }] }
+});
+</script>
+
+{% endblock %}
