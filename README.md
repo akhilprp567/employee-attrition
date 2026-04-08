@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Employee Attrition Prediction & HR Analytics System
 
 A comprehensive machine learning-based HR analytics platform for predicting employee attrition and providing actionable insights to HR departments.
@@ -299,3 +300,7 @@ For issues or suggestions, please contact the development team.
 
 **Last Updated**: April 2026
 **Version**: 1.0.0
+=======
+# employee-attrition
+Employee Attrition Prediction Using IBM Dataset and Random Forest Algo
+>>>>>>> 647c4f469b1034f9330455cf8f67e1883a12ad8c
