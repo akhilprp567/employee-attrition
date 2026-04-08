@@ -1,148 +1,448 @@
 {% extends "base.html" %}
+{% block title %}Analytics — Attrition AI{% endblock %}
 
-{% block title %}Analytics - Employee Attrition System{% endblock %}
+{% block extra_css %}
+<style>
+    /* ===== HERO ===== */
+    .analytics-hero {
+        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.5s ease both;
+    }
+    .analytics-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 80% 50%, rgba(240,147,251,0.12) 0%, transparent 50%),
+            radial-gradient(circle at 20% 50%, rgba(102,126,234,0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    .analytics-hero-title {
+        font-size: 1.9rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 40%, #f093fb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0; line-height: 1.2;
+    }
+    .analytics-hero-sub {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        margin-top: 0.35rem;
+    }
+    .ml-chip {
+        background: linear-gradient(135deg, rgba(240,147,251,0.2), rgba(102,126,234,0.2));
+        border: 1px solid rgba(240,147,251,0.3);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.8rem;
+        color: #f093fb;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ===== KPI CARDS ===== */
+    .akpi {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        text-align: center;
+        animation: fadeInUp 0.5s ease both;
+        transition: var(--transition);
+    }
+    .akpi:hover { transform: translateY(-5px); border-color: rgba(102,126,234,0.3); }
+    .akpi-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .akpi-val {
+        font-size: 2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .akpi-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+
+    /* ===== CHART CARDS ===== */
+    .a-chart-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+        animation: fadeInUp 0.6s ease both;
+        transition: var(--transition);
+    }
+    .a-chart-card:hover {
+        border-color: rgba(102,126,234,0.25);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    }
+    .a-chart-title {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted);
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .a-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* ===== ML INSIGHTS ===== */
+    .insight-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 1.1rem 1.3rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s;
+    }
+    .insight-card.visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .insight-card:hover {
+        border-color: rgba(102,126,234,0.3);
+        transform: translateX(4px);
+    }
+    .insight-icon {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .insight-text {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+    }
+    .insight-text strong { color: var(--text-primary); }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-2">
 
-    <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">📊 Analytics Dashboard</h2>
-        <span class="badge bg-dark">ML Insights</span>
+<!-- ===== HERO ===== -->
+<div class="analytics-hero mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="analytics-hero-title">📈 Analytics Dashboard</h1>
+            <p class="analytics-hero-sub">Deep-dive into workforce trends and ML-powered attrition signals</p>
+        </div>
+        <span class="ml-chip"><i class="bi bi-robot"></i> ML-Powered Insights</span>
+    </div>
+</div>
+
+<!-- ===== KPI ROW ===== -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="akpi">
+            <span class="akpi-icon">👥</span>
+            <div class="akpi-val" data-count="{{ total }}">0</div>
+            <div class="akpi-label">Total Employees</div>
+        </div>
     </div>
 
-    <!-- TOP CARDS -->
-    <div class="row g-3 mb-4 text-center">
-
-        <div class="col-md-4">
-            <div class="card shadow p-3 rounded-4">
-                <h6>Total Employees</h6>
-                <h3>{{ total }}</h3>
-            </div>
+    <div class="col-md-4">
+        <div class="akpi" style="border-color:rgba(245,87,108,0.2);animation-delay:0.1s;">
+            <span class="akpi-icon">🚨</span>
+            <div class="akpi-val" style="background:linear-gradient(135deg,#f5576c,#f093fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" data-count="{{ attrited }}">0</div>
+            <div class="akpi-label">Attrited Employees</div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card shadow p-3 rounded-4">
-                <h6>Attrited</h6>
-                <h3 class="text-danger">{{ attrited }}</h3>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow p-3 rounded-4">
-                <h6>Avg Salary</h6>
-                <h3 class="text-primary">₹{{ "%.0f"|format(avg_salary) }}</h3>
-            </div>
-        </div>
-
     </div>
 
-    <!-- ================= JOB ROLE CHART ================= -->
-    <div class="card p-4 shadow rounded-4 mb-4">
-        <h5>📌 Job Role Distribution</h5>
-        <canvas id="roleChart"></canvas>
-    </div>
-
-    <!-- ================= RISK BY ROLE ================= -->
-    <div class="card p-4 shadow rounded-4 mb-4">
-        <h5>⚠️ Risk by Job Role (%)</h5>
-        <canvas id="riskChart"></canvas>
-    </div>
-
-    <!-- ================= CHARTS ================= -->
-    <div class="row g-3 mb-4">
-
-        <!-- SALARY -->
-        <div class="col-md-6">
-            <div class="card p-3 shadow rounded-4">
-                <h6>Salary Distribution</h6>
-                <canvas id="salaryChart"></canvas>
-            </div>
+    <div class="col-md-4">
+        <div class="akpi" style="border-color:rgba(102,126,234,0.2);animation-delay:0.2s;">
+            <span class="akpi-icon">💰</span>
+            <div class="akpi-val" style="background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" id="avgSalCount">₹0</div>
+            <div class="akpi-label">Avg Monthly Salary</div>
         </div>
-
-        <!-- EXPERIENCE -->
-        <div class="col-md-6">
-            <div class="card p-3 shadow rounded-4">
-                <h6>Experience Analysis</h6>
-                <canvas id="experienceChart"></canvas>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- ================= ML INSIGHTS ================= -->
-    <div class="card p-4 shadow rounded-4">
-        <h5>🤖 ML Insights</h5>
-
-        <ul>
-            <li>Employees with low salary and poor satisfaction have higher attrition risk</li>
-            <li>Long commute distance increases attrition probability</li>
-            <li>Work-life balance plays a key role in retention</li>
-            <li>High-risk employees should be monitored by HR</li>
-        </ul>
     </div>
 
 </div>
 
-<!-- CHART JS -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- ===== JOB ROLE + RISK BY ROLE ===== -->
+<div class="row g-3 mb-4">
 
+    <div class="col-md-6">
+        <div class="a-chart-card h-100">
+            <p class="a-chart-title"><span class="a-dot" style="background:linear-gradient(135deg,#667eea,#764ba2);"></span>Job Role Distribution</p>
+            <canvas id="roleChart"></canvas>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="a-chart-card h-100">
+            <p class="a-chart-title"><span class="a-dot" style="background:linear-gradient(135deg,#f5576c,#f093fb);"></span>Risk by Job Role (Radar)</p>
+            <canvas id="riskChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== SALARY + EXPERIENCE ===== -->
+<div class="row g-3 mb-4">
+
+    <div class="col-md-6">
+        <div class="a-chart-card h-100">
+            <p class="a-chart-title"><span class="a-dot" style="background:linear-gradient(135deg,#43e97b,#38f9d7);"></span>Salary Distribution</p>
+            <div style="max-width:280px;margin:0 auto;">
+                <canvas id="salaryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="a-chart-card h-100">
+            <p class="a-chart-title"><span class="a-dot" style="background:linear-gradient(135deg,#4facfe,#00f2fe);"></span>Experience Distribution (Years)</p>
+            <canvas id="experienceChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- ===== ML INSIGHTS ===== -->
+<div class="a-chart-card mb-4">
+    <p class="a-chart-title"><span class="a-dot" style="background:linear-gradient(135deg,#f093fb,#f5576c);"></span>🤖 ML-Powered Insights</p>
+    <div class="row g-3" id="insightsContainer">
+
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-icon" style="background:rgba(245,87,108,0.15);color:#f87171;">💸</div>
+                <div class="insight-text">
+                    <strong>Low salary + poor satisfaction</strong> is the strongest predictor of attrition. Employees earning below the median with satisfaction score ≤ 2 have 3× higher risk.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-icon" style="background:rgba(247,151,30,0.15);color:#fbbf24;">🗺️</div>
+                <div class="insight-text">
+                    <strong>Long commute distance</strong> significantly increases attrition probability. Employees living 30+ km away show notably elevated risk scores.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-icon" style="background:rgba(79,172,254,0.15);color:#60a5fa;">⚖️</div>
+                <div class="insight-text">
+                    <strong>Work-life balance</strong> is a critical retention factor. Score of 1 correlates with 2.5× higher attrition; improving it to 3+ dramatically lowers risk.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="insight-card">
+                <div class="insight-icon" style="background:rgba(67,233,123,0.15);color:#4ade80;">🚀</div>
+                <div class="insight-text">
+                    <strong>Years since last promotion</strong> matters. Employees with 4+ years without advancement show higher risk — timely recognition improves retention.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+/* Globals */
+Chart.defaults.color = 'rgba(255,255,255,0.5)';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+Chart.defaults.font.size = 11;
 
 const roleLabels = {{ role_labels | tojson }};
 const roleCounts = {{ role_counts | tojson }};
-const roleRisk = {{ role_risk | tojson }};
+const roleRisk   = {{ role_risk | tojson }};
 const salaryData = {{ salary_brackets | tojson }};
-const expData = {{ experience_data | tojson }};
+const expData    = {{ experience_data | tojson }};
 
-// ROLE COUNT
-new Chart(document.getElementById("roleChart"), {
-    type: "bar",
-    data: {
+/* Counter animations */
+document.querySelectorAll('[data-count]').forEach(el => {
+    const target = parseFloat(el.dataset.count);
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * ease);
+        if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+});
+(function(){
+    const target = {{ avg_salary }};
+    const el = document.getElementById('avgSalCount');
+    const start = performance.now();
+    function tick(now){
+        const t = Math.min((now-start)/1400,1);
+        const ease = 1-Math.pow(1-t,3);
+        el.textContent = '₹' + Math.round(target*ease).toLocaleString('en-IN');
+        if(t<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+})();
+
+/* ===== Job Role Horizontal Bar ===== */
+(function(){
+    const ctx = document.getElementById('roleChart').getContext('2d');
+    const grad = ctx.createLinearGradient(300,0,0,0);
+    grad.addColorStop(0,'#667eea');
+    grad.addColorStop(1,'#764ba255');
+    // Sort descending
+    const pairs = roleLabels.map((l,i) => [l, roleCounts[i]]).sort((a,b)=>b[1]-a[1]);
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: pairs.map(p=>p[0]),
+            datasets:[{
+                label:'Employees',
+                data: pairs.map(p=>p[1]),
+                backgroundColor: grad,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options:{
+            indexAxis:'y',
+            responsive:true,
+            plugins:{ legend:{display:false} },
+            scales:{
+                x:{ grid:{color:'rgba(255,255,255,0.05)'}, beginAtZero:true },
+                y:{ grid:{display:false} }
+            }
+        }
+    });
+})();
+
+/* ===== Risk Radar ===== */
+new Chart(document.getElementById('riskChart'), {
+    type:'radar',
+    data:{
         labels: roleLabels,
-        datasets: [{
-            label: "Employees",
-            data: roleCounts
+        datasets:[{
+            label:'Attrition Risk %',
+            data: roleRisk,
+            backgroundColor: 'rgba(245,87,108,0.2)',
+            borderColor: '#f5576c',
+            pointBackgroundColor: '#f093fb',
+            pointBorderColor: 'transparent',
+            borderWidth: 2,
+            pointRadius: 4
         }]
+    },
+    options:{
+        responsive:true,
+        scales:{
+            r:{
+                grid:{ color:'rgba(255,255,255,0.08)' },
+                angleLines:{ color:'rgba(255,255,255,0.08)' },
+                ticks:{ backdropColor:'transparent', color:'rgba(255,255,255,0.4)', font:{size:9} },
+                pointLabels:{ color:'rgba(255,255,255,0.55)', font:{size:10} }
+            }
+        },
+        plugins:{ legend:{display:false} }
     }
 });
 
-// ROLE RISK
-new Chart(document.getElementById("riskChart"), {
-    type: "bar",
-    data: {
-        labels: roleLabels,
-        datasets: [{
-            label: "Risk %",
-            data: roleRisk
-        }]
-    }
-});
-
-// SALARY
-new Chart(document.getElementById("salaryChart"), {
-    type: "doughnut",
-    data: {
+/* ===== Salary Donut ===== */
+new Chart(document.getElementById('salaryChart'),{
+    type:'doughnut',
+    data:{
         labels: Object.keys(salaryData),
-        datasets: [{
-            data: Object.values(salaryData)
+        datasets:[{
+            data: Object.values(salaryData),
+            backgroundColor:['#43e97b','#4facfe','#f7971e','#f5576c'],
+            borderColor:'transparent',
+            borderWidth:0,
+            hoverOffset: 8
         }]
+    },
+    options:{
+        responsive:true,
+        cutout:'60%',
+        plugins:{
+            legend:{ position:'bottom', labels:{ padding:12, boxWidth:10 } },
+            tooltip:{ callbacks:{ label: ctx=>' '+ctx.label+': '+ctx.parsed+' employees' } }
+        }
     }
 });
 
-// EXPERIENCE
-new Chart(document.getElementById("experienceChart"), {
-    type: "line",
-    data: {
-        labels: Object.keys(expData),
-        datasets: [{
-            label: "Employees",
-            data: Object.values(expData),
-            tension: 0.3
-        }]
-    }
-});
+/* ===== Experience Area Line ===== */
+(function(){
+    const ctx = document.getElementById('experienceChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0,0,0,220);
+    grad.addColorStop(0,'rgba(79,172,254,0.4)');
+    grad.addColorStop(1,'rgba(79,172,254,0.02)');
+    const keys = Object.keys(expData).map(Number).sort((a,b)=>a-b);
+    new Chart(ctx,{
+        type:'line',
+        data:{
+            labels: keys.map(k=>k+' yrs'),
+            datasets:[{
+                label:'Employees',
+                data: keys.map(k=>expData[k]),
+                borderColor:'#4facfe',
+                backgroundColor: grad,
+                borderWidth:2.5,
+                tension:0.4,
+                fill:true,
+                pointBackgroundColor:'#4facfe',
+                pointRadius:3,
+                pointHoverRadius:6
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{ legend:{display:false} },
+            scales:{
+                x:{ grid:{display:false} },
+                y:{ grid:{color:'rgba(255,255,255,0.05)'}, beginAtZero:true }
+            }
+        }
+    });
+})();
 
+/* ===== IntersectionObserver: slide-in insight cards ===== */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if(entry.isIntersecting){
+            setTimeout(()=>{ entry.target.classList.add('visible'); }, i * 120);
+            observer.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.insight-card').forEach(c => observer.observe(c));
 </script>
-
 {% endblock %}

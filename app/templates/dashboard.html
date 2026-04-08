@@ -1,167 +1,721 @@
 {% extends "base.html" %}
+{% block title %}Dashboard — Attrition AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== HERO BANNER ===== */
+    .dashboard-hero {
+        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 40%, #16213e 100%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 2rem 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.6s ease both;
+    }
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(102,126,234,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(102,126,234,0.08) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+    .dashboard-hero::after {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 250px; height: 250px;
+        background: radial-gradient(circle, rgba(102,126,234,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .hero-title {
+        font-size: 1.9rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 40%, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .hero-subtitle {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-top: 0.35rem;
+    }
+    .hero-date-chip {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .welcome-chip {
+        background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+        border: 1px solid rgba(102,126,234,0.3);
+        border-radius: 20px;
+        padding: 5px 16px;
+        font-size: 0.82rem;
+        color: #a78bfa;
+        font-weight: 600;
+    }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-card {
+        border-radius: var(--radius-xl) !important;
+        border: 1px solid var(--glass-border) !important;
+        background: var(--glass) !important;
+        padding: 1.5rem !important;
+        position: relative;
+        overflow: hidden;
+        cursor: default;
+        transition: var(--transition) !important;
+        animation: fadeInUp 0.5s ease both;
+    }
+    .kpi-card:hover {
+        transform: translateY(-6px) !important;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.35) !important;
+    }
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    }
+    .kpi-card.k-primary::before { background: linear-gradient(90deg, var(--primary), var(--primary-end)); }
+    .kpi-card.k-danger::before  { background: linear-gradient(90deg, var(--danger-start), var(--danger-end)); }
+    .kpi-card.k-warning::before { background: linear-gradient(90deg, var(--warning-start), var(--warning-end)); }
+    .kpi-card.k-info::before    { background: linear-gradient(90deg, var(--info-start), var(--info-end)); }
+
+    .kpi-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+    .kpi-card.k-primary .kpi-icon { background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25)); color: #a78bfa; }
+    .kpi-card.k-danger .kpi-icon  { background: linear-gradient(135deg, rgba(245,87,108,0.25), rgba(240,147,251,0.25)); color: #f87171; }
+    .kpi-card.k-warning .kpi-icon { background: linear-gradient(135deg, rgba(247,151,30,0.25), rgba(255,210,0,0.25)); color: #fbbf24; }
+    .kpi-card.k-info .kpi-icon    { background: linear-gradient(135deg, rgba(67,233,123,0.25), rgba(56,249,215,0.25)); color: #34d399; }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+    }
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin: 0;
+        color: #fff !important;
+        -webkit-text-fill-color: #fff !important;
+    }
+    .kpi-card.k-primary .kpi-value { background: linear-gradient(135deg, var(--primary), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .kpi-card.k-danger .kpi-value  { background: linear-gradient(135deg, var(--danger-start), var(--danger-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .kpi-card.k-warning .kpi-value { background: linear-gradient(135deg, var(--warning-start), var(--warning-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .kpi-card.k-info .kpi-value    { background: linear-gradient(135deg, var(--info-start), var(--info-end)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    /* ===== CHART CARDS ===== */
+    .chart-card {
+        background: var(--glass) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: var(--radius-xl) !important;
+        padding: 1.5rem !important;
+        height: 100%;
+        animation: fadeInUp 0.6s ease both;
+    }
+    .chart-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted) !important;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .chart-title-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* ===== RISK OVERVIEW SECTION ===== */
+    .risk-mini-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 1.2rem;
+        text-align: center;
+        flex: 1;
+        transition: var(--transition);
+    }
+    .risk-mini-card:hover {
+        transform: translateY(-4px);
+    }
+    .risk-ring {
+        width: 64px; height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin: 0 auto 0.75rem;
+    }
+
+    /* Progress bar */
+    .risk-bar-wrap {
+        background: rgba(255,255,255,0.08);
+        border-radius: 6px;
+        height: 6px;
+        margin-top: 8px;
+        overflow: hidden;
+    }
+    .risk-bar-fill {
+        height: 100%;
+        border-radius: 6px;
+        transition: width 1s ease;
+    }
+
+    /* ===== SALARY CARD ===== */
+    .salary-highlight {
+        background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+        border: 1px solid rgba(102,126,234,0.25);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: fadeInUp 0.7s ease both;
+    }
+    .salary-currency {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+    }
+    .salary-value {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary), #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+    }
+    .salary-label {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-top: 0.5rem;
+    }
+
+    /* ===== RISK TABLE ===== */
+    .risk-table-wrap {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        animation: fadeInUp 0.8s ease both;
+    }
+    .risk-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--glass-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .risk-table-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    .table thead tr { background: rgba(255,255,255,0.04) !important; }
+    .risk-bar-cell { position: relative; }
+    .risk-progress-bg {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        border-radius: 4px;
+        opacity: 0.15;
+        pointer-events: none;
+    }
+    .risk-pct { position: relative; font-weight: 700; font-size: 0.9rem; }
+
+    /* Pulsing badge for high risk */
+    .badge-high { animation: pulse-glow 2s ease-in-out infinite; }
+
+    /* ===== FAB BUTTON ===== */
+    .fab-btn {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 1040;
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-end));
+        color: #fff;
+        border: none;
+        font-size: 1.4rem;
+        box-shadow: 0 8px 30px rgba(102,126,234,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+        animation: float 3s ease-in-out infinite;
+    }
+    .fab-btn:hover {
+        transform: scale(1.12) !important;
+        animation: none;
+        color: #fff;
+        box-shadow: 0 12px 40px rgba(102,126,234,0.7);
+    }
+    .fab-tooltip {
+        position: fixed;
+        bottom: 36px;
+        right: 92px;
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+    }
+    .fab-btn:hover ~ .fab-tooltip { opacity: 1; }
+
+    /* section animation delays */
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-2">
 
-<!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold">📊 Employee Analytics Dashboard</h3>
-    <span class="badge bg-dark px-3 py-2">Welcome, {{ current_user.username }}</span>
+<!-- ===== HERO BANNER ===== -->
+<div class="dashboard-hero mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h1 class="hero-title">📊 Employee Analytics Dashboard</h1>
+            <p class="hero-subtitle">Real-time insights powered by Machine Learning</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="hero-date-chip"><i class="bi bi-calendar3"></i> <span id="liveDate">—</span></span>
+            <span class="welcome-chip"><i class="bi bi-stars me-1"></i>Welcome, {{ current_user.username }}</span>
+        </div>
+    </div>
 </div>
 
-<!-- TOP CARDS -->
+<!-- ===== KPI CARDS ===== -->
 <div class="row g-3 mb-4">
 
-    {% set cards = [
-        ('Total Employees', total_employees, 'primary'),
-        ('Attrited', total_attrited, 'danger'),
-        ('Attrition Rate', attrition_rate ~ '%', 'warning'),
-        ('High Risk', high_risk_count, 'info')
-    ] %}
-
-    {% for title, value, color in cards %}
-    <div class="col-md-3">
-        <div class="card shadow border-0 rounded-4 p-3">
-            <h6 class="text-muted">{{ title }}</h6>
-            <h2 class="text-{{ color }}">{{ value }}</h2>
+    <div class="col-6 col-md-3">
+        <div class="kpi-card k-primary h-100">
+            <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="kpi-label">Total Employees</div>
+            <div class="kpi-value" data-target="{{ total_employees }}">0</div>
         </div>
     </div>
-    {% endfor %}
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card k-danger h-100 delay-1">
+            <div class="kpi-icon"><i class="bi bi-person-dash-fill"></i></div>
+            <div class="kpi-label">Attrited</div>
+            <div class="kpi-value" data-target="{{ total_attrited }}">0</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card k-warning h-100 delay-2">
+            <div class="kpi-icon"><i class="bi bi-graph-down-arrow"></i></div>
+            <div class="kpi-label">Attrition Rate</div>
+            <div class="kpi-value" data-target="{{ attrition_rate }}" data-suffix="%">0</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="kpi-card k-info h-100 delay-3">
+            <div class="kpi-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div class="kpi-label">High Risk</div>
+            <div class="kpi-value" data-target="{{ high_risk_count }}">0</div>
+        </div>
+    </div>
 
 </div>
 
-<!-- CHARTS -->
+<!-- ===== CHARTS ROW ===== -->
 <div class="row g-3 mb-4">
 
     <div class="col-md-4">
-        <div class="card p-3 shadow rounded-4">
-            <h6>Department Distribution</h6>
-            <canvas id="deptChart"></canvas>
+        <div class="chart-card card">
+            <p class="chart-title">
+                <span class="chart-title-dot" style="background:linear-gradient(135deg,#667eea,#764ba2);"></span>
+                Department Distribution
+            </p>
+            <canvas id="deptChart" height="220"></canvas>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card p-3 shadow rounded-4">
-            <h6>Age Distribution</h6>
-            <canvas id="ageChart"></canvas>
+        <div class="chart-card card">
+            <p class="chart-title">
+                <span class="chart-title-dot" style="background:linear-gradient(135deg,#4facfe,#00f2fe);"></span>
+                Age Distribution
+            </p>
+            <canvas id="ageChart" height="220"></canvas>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card p-3 shadow rounded-4">
-            <h6>Salary by Department</h6>
-            <canvas id="salaryChart"></canvas>
+        <div class="chart-card card">
+            <p class="chart-title">
+                <span class="chart-title-dot" style="background:linear-gradient(135deg,#f7971e,#ffd200);"></span>
+                Salary by Department
+            </p>
+            <canvas id="salaryChart" height="220"></canvas>
         </div>
     </div>
 
 </div>
 
-<!-- RISK OVERVIEW -->
-<div class="row mb-4">
+<!-- ===== RISK OVERVIEW + AVG SALARY + RISK GAUGE ===== -->
+<div class="row g-3 mb-4">
 
-    <div class="col-md-6">
-        <div class="card p-4 shadow rounded-4">
-            <h5>Risk Overview</h5>
+    <!-- Risk Breakdown -->
+    <div class="col-md-5">
+        <div class="chart-card card h-100">
+            <p class="chart-title"><span class="chart-title-dot" style="background:#43e97b;"></span>Risk Segmentation</p>
+            <div class="d-flex gap-3 mt-2">
 
-            <div class="d-flex justify-content-around mt-3">
-
-                <div class="text-center">
-                    <h4 class="text-success">
-                        {{ employees|selectattr('attrition_risk_score','lt',0.25)|list|length }}
-                    </h4>
-                    <small>Low</small>
+                <div class="risk-mini-card">
+                    <div class="risk-ring" style="background:rgba(67,233,123,0.15);">🟢</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:#4ade80;">{{ low_risk }}</div>
+                    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);">Low Risk</div>
+                    <div class="risk-bar-wrap">
+                        <div class="risk-bar-fill" style="width:{% if total_employees %}{{ (low_risk/total_employees*100)|round(0) }}{% else %}0{% endif %}%;background:linear-gradient(90deg,#4facfe,#43e97b);"></div>
+                    </div>
                 </div>
 
-                <div class="text-center">
-                    <h4 class="text-warning">
-                        {{ employees|selectattr('attrition_risk_score','ge',0.25)
-                        |selectattr('attrition_risk_score','lt',0.6)|list|length }}
-                    </h4>
-                    <small>Medium</small>
+                <div class="risk-mini-card">
+                    <div class="risk-ring" style="background:rgba(247,151,30,0.15);">🟡</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:#fbbf24;">{{ medium_risk }}</div>
+                    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);">Medium Risk</div>
+                    <div class="risk-bar-wrap">
+                        <div class="risk-bar-fill" style="width:{% if total_employees %}{{ (medium_risk/total_employees*100)|round(0) }}{% else %}0{% endif %}%;background:linear-gradient(90deg,#f7971e,#ffd200);"></div>
+                    </div>
                 </div>
 
-                <div class="text-center">
-                    <h4 class="text-danger">
-                        {{ employees|selectattr('attrition_risk_score','ge',0.6)|list|length }}
-                    </h4>
-                    <small>High</small>
+                <div class="risk-mini-card">
+                    <div class="risk-ring" style="background:rgba(245,87,108,0.15);">🔴</div>
+                    <div style="font-size:1.6rem;font-weight:800;color:#f87171;">{{ high_risk_count }}</div>
+                    <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);">High Risk</div>
+                    <div class="risk-bar-wrap">
+                        <div class="risk-bar-fill" style="width:{% if total_employees %}{{ (high_risk_count/total_employees*100)|round(0) }}{% else %}0{% endif %}%;background:linear-gradient(90deg,#f5576c,#f093fb);"></div>
+                    </div>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="card p-4 shadow rounded-4 text-center">
-            <h5>Average Salary</h5>
-            <h2 class="text-primary">₹{{ "%.0f"|format(avg_salary) }}</h2>
+    <!-- Risk Gauge Donut -->
+    <div class="col-md-4">
+        <div class="chart-card card h-100 text-center">
+            <p class="chart-title justify-content-center"><span class="chart-title-dot" style="background:#f5576c;"></span>Risk Gauge</p>
+            <div style="position:relative;max-width:200px;margin:0 auto;">
+                <canvas id="riskGauge" height="180"></canvas>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#fff;">{{ attrition_rate }}%</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;">Attrition</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avg Salary -->
+    <div class="col-md-3">
+        <div class="salary-highlight h-100">
+            <div class="salary-currency"><i class="bi bi-currency-rupee"></i> Average Salary</div>
+            <div class="salary-value" id="avgSalaryVal">0</div>
+            <div class="salary-label">Monthly Income</div>
+            <div style="margin-top:1rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;padding:8px 14px;font-size:0.78rem;color:var(--text-muted);">
+                <i class="bi bi-info-circle me-1"></i>Across all departments
+            </div>
         </div>
     </div>
 
 </div>
 
-<!-- TABLE -->
-<div class="card p-4 shadow rounded-4 mb-4">
-    <h5>Top Risk Employees</h5>
-
-    <table class="table table-hover mt-3">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Department</th>
-                <th>Risk</th>
-                <th>Status</th>
-                <th>Reason</th>
-            </tr>
-        </thead>
-
-        <tbody>
-        {% for emp in at_risk_employees %}
-            <tr>
-                <td>{{ emp.name }}</td>
-                <td>{{ emp.department }}</td>
-                <td>{{ "%.1f"|format(emp.attrition_risk_score*100) }}%</td>
-
-                <td>
-                    {% if emp.attrition_risk_score >= 0.6 %}
-                        <span class="badge bg-danger">High</span>
-                    {% elif emp.attrition_risk_score >= 0.25 %}
-                        <span class="badge bg-warning text-dark">Medium</span>
-                    {% else %}
-                        <span class="badge bg-success">Low</span>
-                    {% endif %}
-                </td>
-
-                <td>{{ emp.attrition_reason }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<!-- ===== TOP RISK TABLE ===== -->
+<div class="risk-table-wrap mb-4">
+    <div class="risk-table-header">
+        <p class="risk-table-title"><i class="bi bi-exclamation-triangle me-2" style="color:#f5576c;"></i>Top Risk Employees</p>
+        <a href="{{ url_for('dashboard.employees') }}" class="btn btn-sm" style="background:var(--glass);border:1px solid var(--glass-border);color:var(--text-muted);border-radius:8px;font-size:0.8rem;">
+            View All <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Risk Score</th>
+                    <th>Status</th>
+                    <th>AI Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for emp in at_risk_employees %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-end));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;color:#fff;flex-shrink:0;">
+                                {{ (emp.name or 'E')[0].upper() }}
+                            </div>
+                            <span style="font-weight:500;">{{ emp.name }}</span>
+                        </div>
+                    </td>
+                    <td><span style="font-size:0.85rem;color:var(--text-muted);">{{ emp.department }}</span></td>
+                    <td class="risk-bar-cell" style="min-width:120px;">
+                        {% set risk_pct = (emp.attrition_risk_score * 100)|round(1) %}
+                        {% if emp.attrition_risk_score >= 0.6 %}
+                            <div class="risk-progress-bg" style="width:{{ risk_pct }}%;background:#f5576c;"></div>
+                        {% elif emp.attrition_risk_score >= 0.25 %}
+                            <div class="risk-progress-bg" style="width:{{ risk_pct }}%;background:#f7971e;"></div>
+                        {% else %}
+                            <div class="risk-progress-bg" style="width:{{ risk_pct }}%;background:#4facfe;"></div>
+                        {% endif %}
+                        <span class="risk-pct">{{ risk_pct }}%</span>
+                    </td>
+                    <td>
+                        {% if emp.attrition_risk_score >= 0.6 %}
+                            <span class="badge badge-high" style="background:linear-gradient(135deg,#f5576c,#f093fb);color:#fff;padding:5px 10px;border-radius:8px;">⚠ High</span>
+                        {% elif emp.attrition_risk_score >= 0.25 %}
+                            <span class="badge" style="background:linear-gradient(135deg,#f7971e,#ffd200);color:#1a1a1a;padding:5px 10px;border-radius:8px;">Medium</span>
+                        {% else %}
+                            <span class="badge" style="background:linear-gradient(135deg,#4facfe,#43e97b);color:#fff;padding:5px 10px;border-radius:8px;">Low</span>
+                        {% endif %}
+                    </td>
+                    <td><span style="font-size:0.83rem;color:var(--text-muted);">{{ emp.attrition_reason or 'Stable' }}</span></td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted);">No risk data available yet. Add employees to see predictions.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-</div>
+</div><!-- end container-fluid -->
 
+<!-- FAB -->
+<a href="{{ url_for('dashboard.employees') }}" class="fab-btn" title="Go to Employees">
+    <i class="bi bi-people-fill"></i>
+</a>
+<span class="fab-tooltip">Manage Employees</span>
+
+{% endblock %}
+
+{% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-const deptData = {{ dept_data | tojson }};
-const ageData = {{ age_groups | tojson }};
-const salaryData = {{ salary_data_dept | tojson }};
+/* ===== Live Date ===== */
+(function() {
+    const d = new Date();
+    document.getElementById('liveDate').textContent = d.toLocaleDateString('en-IN', {
+        weekday:'short', day:'numeric', month:'short', year:'numeric'
+    });
+})();
 
-new Chart(document.getElementById("deptChart"), {
-    type: "doughnut",
-    data: { labels: Object.keys(deptData), datasets: [{ data: Object.values(deptData) }] }
+/* ===== Counter Animation ===== */
+function animateCounter(el) {
+    const target = parseFloat(el.dataset.target) || 0;
+    const suffix = el.dataset.suffix || '';
+    const isFloat = target % 1 !== 0;
+    const duration = 1200;
+    const start = performance.now();
+    function update(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        const val = target * ease;
+        el.textContent = (isFloat ? val.toFixed(2) : Math.round(val)) + suffix;
+        if (t < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+}
+document.querySelectorAll('.kpi-value[data-target]').forEach(animateCounter);
+
+/* Avg salary counter */
+(function(){
+    const target = {{ avg_salary }};
+    const el = document.getElementById('avgSalaryVal');
+    const duration = 1400;
+    const start = performance.now();
+    function update(now){
+        const t = Math.min((now - start)/duration,1);
+        const ease = 1 - Math.pow(1-t,3);
+        el.textContent = Math.round(target*ease).toLocaleString('en-IN');
+        if(t<1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+})();
+
+/* ===== Chart.js Global Defaults ===== */
+Chart.defaults.color = 'rgba(255,255,255,0.5)';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+Chart.defaults.font.size = 11;
+
+const deptData    = {{ dept_data | tojson }};
+const ageData     = {{ age_groups | tojson }};
+const salaryData  = {{ salary_data_dept | tojson }};
+
+/* ===== Helper: canvas gradient ===== */
+function makeGrad(ctx, c1, c2) {
+    const g = ctx.createLinearGradient(0, 0, 0, 260);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    return g;
+}
+
+/* ===== Dept Donut ===== */
+new Chart(document.getElementById('deptChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(deptData),
+        datasets: [{
+            data: Object.values(deptData),
+            backgroundColor: ['#667eea','#764ba2','#f5576c','#4facfe','#43e97b','#f7971e'],
+            borderColor: 'transparent',
+            borderWidth: 0,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: {
+            legend: { position: 'bottom', labels: { padding: 14, boxWidth: 10, borderRadius: 4 } },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} employees` } }
+        }
+    }
 });
 
-new Chart(document.getElementById("ageChart"), {
-    type: "bar",
-    data: { labels: Object.keys(ageData), datasets: [{ data: Object.values(ageData) }] }
-});
+/* ===== Age Bar ===== */
+(function(){
+    const ctx = document.getElementById('ageChart').getContext('2d');
+    const grad = makeGrad(ctx, '#4facfe', '#00f2fe55');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(ageData),
+            datasets: [{
+                label: 'Employees',
+                data: Object.values(ageData),
+                backgroundColor: grad,
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }
+            }
+        }
+    });
+})();
 
-new Chart(document.getElementById("salaryChart"), {
-    type: "bar",
-    data: { labels: Object.keys(salaryData), datasets: [{ data: Object.values(salaryData) }] }
-});
+/* ===== Salary Horizontal Bar ===== */
+(function(){
+    const ctx = document.getElementById('salaryChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 260, 0);
+    grad.addColorStop(0, '#f7971e');
+    grad.addColorStop(1, '#ffd20066');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(salaryData),
+            datasets: [{
+                label: 'Avg Salary (₹)',
+                data: Object.values(salaryData),
+                backgroundColor: grad,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+})();
+
+/* ===== Risk Gauge Donut ===== */
+(function(){
+    const low    = {{ low_risk }};
+    const medium = {{ medium_risk }};
+    const high   = {{ high_risk_count }};
+    new Chart(document.getElementById('riskGauge'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+            datasets: [{
+                data: [low, medium, high],
+                backgroundColor: ['#43e97b', '#f7971e', '#f5576c'],
+                borderColor: 'transparent',
+                borderWidth: 0,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '70%',
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } }
+            }
+        }
+    });
+})();
 </script>
-
 {% endblock %}

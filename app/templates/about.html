@@ -1,26 +1,239 @@
 {% extends "base.html" %}
+{% block title %}About — Attrition AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* HERO */
+    .about-hero {
+        background: linear-gradient(135deg,rgba(102,126,234,0.15) 0%,rgba(118,75,162,0.12) 50%,rgba(240,147,251,0.1) 100%);
+        border: 1px solid rgba(102,126,234,0.2);
+        border-radius: var(--radius-xl);
+        padding: 3rem 2.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative; overflow: hidden;
+        animation: fadeInDown 0.5s ease both;
+    }
+    .about-hero::before {
+        content:''; position:absolute; inset:0;
+        background-image:
+            linear-gradient(rgba(102,126,234,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(102,126,234,0.06) 1px, transparent 1px);
+        background-size:40px 40px;
+        pointer-events:none;
+    }
+    .about-hero-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(102,126,234,0.15);
+        border: 1px solid rgba(102,126,234,0.3);
+        border-radius: 20px; padding: 5px 14px;
+        font-size: 0.78rem; color: #a78bfa; font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .about-hero-title {
+        font-size: 2.4rem; font-weight: 800;
+        background: linear-gradient(135deg,#fff 30%,#a78bfa 70%,#f093fb);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        margin-bottom: 1rem;
+    }
+    .about-hero-desc {
+        color: var(--text-muted); font-size: 1rem; max-width: 600px; margin: 0 auto; line-height: 1.7;
+    }
+
+    /* Feature cards */
+    .feature-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 1.75rem;
+        height: 100%;
+        transition: var(--transition);
+        animation: fadeInUp 0.5s ease both;
+    }
+    .feature-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(102,126,234,0.3);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .feature-icon {
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; margin-bottom: 1rem;
+    }
+    .feature-title { font-size:1rem; font-weight:700; margin-bottom:0.5rem; }
+    .feature-desc { font-size:0.86rem; color: var(--text-muted); line-height:1.6; }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 2.5rem; }
+    .timeline::before {
+        content:''; position:absolute;
+        left:16px; top:8px; bottom:8px; width:2px;
+        background: linear-gradient(to bottom, var(--primary), #f093fb);
+        border-radius:2px;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.5s ease both;
+    }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot {
+        position: absolute;
+        left: -2.5rem;
+        top: 2px;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .timeline-title { font-weight: 700; margin-bottom: 0.3rem; }
+    .timeline-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* Tech pills */
+    .tech-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px; padding: 8px 14px;
+        font-size: 0.85rem; font-weight: 600;
+        transition: var(--transition); cursor: default;
+        margin: 4px;
+    }
+    .tech-pill:hover {
+        border-color: rgba(102,126,234,0.4);
+        background: rgba(102,126,234,0.1);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="container-fluid py-2">
 
-<div class="container py-5">
-    <div class="card shadow p-5 rounded-4">
-        <h2 class="fw-bold mb-3">About Employee Attrition System</h2>
-
-        <p>
-            This system uses Machine Learning to predict employee attrition risk,
-            helping organizations take proactive decisions.
+    <!-- HERO -->
+    <div class="about-hero">
+        <div class="about-hero-badge"><i class="bi bi-robot"></i> AI-Powered HR Analytics</div>
+        <h1 class="about-hero-title">Employee Attrition AI</h1>
+        <p class="about-hero-desc">
+            An intelligent platform that uses Machine Learning to predict, understand, and prevent employee attrition — empowering HR teams to make proactive, data-driven decisions.
         </p>
-
-        <h5 class="mt-4">✨ Features</h5>
-        <ul>
-            <li>AI-based attrition prediction</li>
-            <li>Risk classification (Low, Medium, High)</li>
-            <li>Interactive dashboard</li>
-            <li>Data-driven HR insights</li>
-        </ul>
-
-        <h5 class="mt-4">🛠 Technology</h5>
-        <p>Flask, Python, SQLAlchemy, Machine Learning</p>
     </div>
-</div>
 
+    <!-- FEATURE CARDS -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-card">
+                <div class="feature-icon" style="background:linear-gradient(135deg,rgba(102,126,234,0.2),rgba(118,75,162,0.2));color:#a78bfa;">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="feature-title">AI Attrition Prediction</div>
+                <div class="feature-desc">ML model trained on real workforce data delivers accurate attrition risk probabilities for every employee.</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-card" style="animation-delay:0.1s;">
+                <div class="feature-icon" style="background:linear-gradient(135deg,rgba(245,87,108,0.2),rgba(240,147,251,0.2));color:#f87171;">
+                    <i class="bi bi-shield-exclamation"></i>
+                </div>
+                <div class="feature-title">Risk Classification</div>
+                <div class="feature-desc">Employees are automatically classified into Low, Medium, and High risk tiers with detailed reasoning.</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-card" style="animation-delay:0.2s;">
+                <div class="feature-icon" style="background:linear-gradient(135deg,rgba(67,233,123,0.2),rgba(56,249,215,0.2));color:#4ade80;">
+                    <i class="bi bi-bar-chart-line"></i>
+                </div>
+                <div class="feature-title">Interactive Dashboard</div>
+                <div class="feature-desc">Rich visualizations — donut charts, radar charts, area fills, and animated KPI cards — all live.</div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="feature-card" style="animation-delay:0.3s;">
+                <div class="feature-icon" style="background:linear-gradient(135deg,rgba(79,172,254,0.2),rgba(0,242,254,0.2));color:#60a5fa;">
+                    <i class="bi bi-lightbulb"></i>
+                </div>
+                <div class="feature-title">Data-Driven Insights</div>
+                <div class="feature-desc">HR teams get actionable, ML-backed insights on salary, satisfaction, commute, and work-life balance factors.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mb-4">
+
+        <!-- HOW IT WORKS -->
+        <div class="col-lg-7">
+            <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:2rem;">
+                <h5 style="font-weight:700;margin-bottom:1.75rem;">
+                    <span style="background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+                        How It Works
+                    </span>
+                </h5>
+                <div class="timeline">
+
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="background:linear-gradient(135deg,var(--primary),var(--primary-end));">1</div>
+                        <div class="timeline-title">Add Employee Data</div>
+                        <div class="timeline-desc">Enter employee details — age, salary, satisfaction scores, work experience, distance from home, and more.</div>
+                    </div>
+
+                    <div class="timeline-item" style="animation-delay:0.1s;">
+                        <div class="timeline-dot" style="background:linear-gradient(135deg,#f7971e,#ffd200);">2</div>
+                        <div class="timeline-title">ML Model Processes</div>
+                        <div class="timeline-desc">Our trained Random Forest model evaluates the inputs and computes an attrition probability score in real time.</div>
+                    </div>
+
+                    <div class="timeline-item" style="animation-delay:0.2s;">
+                        <div class="timeline-dot" style="background:linear-gradient(135deg,#f5576c,#f093fb);">3</div>
+                        <div class="timeline-title">Risk Score & Reason</div>
+                        <div class="timeline-desc">Each employee receives a risk score (0–100%) and a human-readable AI-generated reason explaining the prediction.</div>
+                    </div>
+
+                    <div class="timeline-item" style="animation-delay:0.3s;">
+                        <div class="timeline-dot" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">4</div>
+                        <div class="timeline-title">HR Takes Action</div>
+                        <div class="timeline-desc">HR managers use the insights to intervene early — improving retention and reducing costly attrition.</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="col-lg-5">
+            <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:2rem;height:100%;">
+                <h5 style="font-weight:700;margin-bottom:1.75rem;">
+                    <span style="background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+                        Technology Stack
+                    </span>
+                </h5>
+                <div>
+                    <span class="tech-pill"><i class="bi bi-flask" style="color:#4facfe;"></i> Flask</span>
+                    <span class="tech-pill"><i class="bi bi-code-slash" style="color:#a78bfa;"></i> Python 3</span>
+                    <span class="tech-pill"><i class="bi bi-database" style="color:#43e97b;"></i> SQLAlchemy</span>
+                    <span class="tech-pill"><i class="bi bi-robot" style="color:#f7971e;"></i> Scikit-learn</span>
+                    <span class="tech-pill"><i class="bi bi-bar-chart" style="color:#f5576c;"></i> Chart.js</span>
+                    <span class="tech-pill"><i class="bi bi-bootstrap" style="color:#7952b3;"></i> Bootstrap 5</span>
+                    <span class="tech-pill"><i class="bi bi-lock" style="color:#f093fb;"></i> Flask-Login</span>
+                    <span class="tech-pill"><i class="bi bi-table" style="color:#4facfe;"></i> Pandas</span>
+                    <span class="tech-pill"><i class="bi bi-grid" style="color:#fbbf24;"></i> NumPy</span>
+                </div>
+
+                <div style="margin-top:1.75rem;padding:1.2rem;background:linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.1));border:1px solid rgba(102,126,234,0.2);border-radius:12px;">
+                    <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.5rem;">ML MODEL</div>
+                    <div style="font-size:0.9rem;font-weight:600;color:#a78bfa;">Random Forest Classifier</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">Trained on IBM HR Analytics dataset. Outputs probability scores with human-readable reasoning.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 {% endblock %}

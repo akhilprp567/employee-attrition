@@ -1,40 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Employee Attrition System{% endblock %}</title>
+    <meta name="description"
+        content="Employee Attrition Analyzer System — Predict and prevent employee attrition with machine learning insights.">
+    <title>{% block title %}EmployeeAttritionAnalyzer{% endblock %}</title>
+
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- BOOTSTRAP -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-    <!-- CUSTOM STYLE -->
     <style>
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            --primary: #667eea;
+            --primary-end: #764ba2;
+            --danger-start: #f5576c;
+            --danger-end: #f093fb;
+            --success-start: #4facfe;
+            --success-end: #00f2fe;
+            --warning-start: #f7971e;
+            --warning-end: #ffd200;
+            --info-start: #43e97b;
+            --info-end: #38f9d7;
+            --dark-bg: #0f0f1a;
+            --surface: #16213e;
+            --surface-2: #1a1a2e;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text-primary: #f0f0f5;
+            --text-muted: rgba(255, 255, 255, 0.55);
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --shadow-glow: 0 0 30px rgba(102, 126, 234, 0.25);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== BASE ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            background: #f4f6f9;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 24px rgba(102, 126, 234, 0.9);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        /* ===== NAVBAR ===== */
         .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(15, 15, 26, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 0.5s ease both;
         }
 
-        .main-content {
-            padding: 20px;
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse-glow 3s ease-in-out infinite;
+            text-decoration: none !important;
         }
 
-        .card {
-            border-radius: 15px;
+        .navbar-brand .brand-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-end));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            -webkit-text-fill-color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Nav links */
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 10px;
+            position: relative;
+            transition: var(--transition);
+            letter-spacing: 0.2px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), #a78bfa);
+            border-radius: 2px;
+            transform: translateX(-50%);
+            transition: width var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary) !important;
+            background: var(--glass);
+        }
+
+        .nav-link:hover::after {
+            width: 60%;
+        }
+
+        .nav-link.active {
+            color: #fff !important;
+            background: rgba(102, 126, 234, 0.18);
+        }
+
+        .nav-link.active::after {
+            width: 60%;
+        }
+
+        /* User avatar dropdown */
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-end));
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #fff !important;
+            -webkit-text-fill-color: white;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .nav-user-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dropdown-menu {
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 0.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown-item {
+            color: var(--text-muted);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.88rem;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--glass);
+            color: #fff;
+        }
+
+        .navbar-toggler {
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            filter: invert(1);
+        }
+
+        /* ===== ALERTS ===== */
+        .alert {
             border: none;
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            animation: fadeInDown 0.4s ease both;
+        }
+
+        .alert-success {
+            background: rgba(79, 172, 254, 0.15);
+            color: #7dd3fc;
+            border-left: 3px solid #4facfe;
+        }
+
+        .alert-danger {
+            background: rgba(245, 87, 108, 0.15);
+            color: #fca5a5;
+            border-left: 3px solid #f5576c;
+        }
+
+        .alert-warning {
+            background: rgba(247, 151, 30, 0.15);
+            color: #fde68a;
+            border-left: 3px solid #f7971e;
+        }
+
+        .alert-info {
+            background: rgba(102, 126, 234, 0.15);
+            color: #a5b4fc;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: 28px 20px;
+            flex: 1;
+        }
+
+        /* ===== SHARED CARD STYLE ===== */
+        .glass-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.35);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Override Bootstrap card for dark theme */
+        .card {
+            background: var(--glass) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: var(--radius-xl) !important;
+            color: var(--text-primary) !important;
+            transition: var(--transition) !important;
         }
 
         .card:hover {
-            transform: translateY(-3px);
-            transition: 0.3s;
+            transform: translateY(-4px);
+            border-color: rgba(102, 126, 234, 0.3) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25) !important;
         }
 
-        footer {
-            margin-top: 50px;
+        .card h5,
+        .card h6,
+        .card h2,
+        .card h3,
+        .card h4 {
+            color: var(--text-primary) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* ===== FOOTER ===== */
+        .site-footer {
+            background: var(--surface-2);
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 0 0;
+            margin-top: auto;
+        }
+
+        .footer-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-brand-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-end));
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            -webkit-text-fill-color: white;
+            flex-shrink: 0;
+        }
+
+        .footer-tagline {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .footer-heading {
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            padding: 3px 0;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: #a78bfa;
+            padding-left: 6px;
+        }
+
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin: 3px 3px 3px 0;
+            transition: var(--transition);
+        }
+
+        .tech-badge:hover {
+            background: rgba(102, 126, 234, 0.15);
+            color: #a78bfa;
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .footer-bottom-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--glass-border);
+            padding: 1rem 0;
+            margin-top: 2.5rem;
+        }
+
+        .footer-bottom-bar small {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+        }
+
+        .ai-pill {
+            background: linear-gradient(135deg, var(--primary), var(--primary-end));
+            color: #fff !important;
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== GRADIENT TEXT UTILITY ===== */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Bootstrap overrides for dark theme */
+        .table {
+            color: var(--text-primary) !important;
+        }
+
+        .table th {
+            color: var(--text-muted) !important;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-color: var(--glass-border) !important;
+        }
+
+        .table td {
+            border-color: var(--glass-border) !important;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background: var(--glass) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .modal-content {
+            background: var(--surface) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: var(--radius-xl) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--glass-border) !important;
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--glass-border) !important;
+        }
+
+        .form-control,
+        .form-select {
+            background: var(--glass) !important;
+            border: 1px solid var(--glass-border) !important;
+            color: var(--text-primary) !important;
+            border-radius: 10px !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-muted) !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+            background: var(--glass) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .badge {
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
     </style>
 
@@ -43,100 +559,209 @@
 
 <body>
 
-{% if current_user.is_authenticated %}
+    {% if current_user.is_authenticated %}
 
-<!-- 🔥 PREMIUM NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-    <div class="container-fluid">
+    <!-- ===== PREMIUM NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid px-3">
 
-        <a class="navbar-brand fw-bold" href="{{ url_for('dashboard.index') }}">
-            <i class="bi bi-graph-up"></i> Attrition AI
-        </a>
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+                <span class="brand-icon"><i class="bi bi-graph-up-arrow"></i></span>
+                Employee Attrition Analyzer
+            </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav ms-auto">
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
 
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint=='dashboard.index' %}active{% endif %}"
-                       href="{{ url_for('dashboard.index') }}">
-                        Dashboard
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a id="nav-dashboard"
+                            class="nav-link {% if request.endpoint=='dashboard.index' %}active{% endif %}"
+                            href="{{ url_for('dashboard.index') }}">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint=='dashboard.employees' %}active{% endif %}"
-                       href="{{ url_for('dashboard.employees') }}">
-                        Employees
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a id="nav-employees"
+                            class="nav-link {% if request.endpoint=='dashboard.employees' %}active{% endif %}"
+                            href="{{ url_for('dashboard.employees') }}">
+                            <i class="bi bi-people me-1"></i>Employees
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint=='dashboard.analytics' %}active{% endif %}"
-                       href="{{ url_for('dashboard.analytics') }}">
-                        Analytics
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a id="nav-analytics"
+                            class="nav-link {% if request.endpoint=='dashboard.analytics' %}active{% endif %}"
+                            href="{{ url_for('dashboard.analytics') }}">
+                            <i class="bi bi-bar-chart-line me-1"></i>Analytics
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint=='dashboard.about' %}active{% endif %}"
-                       href="{{ url_for('dashboard.about') }}">
-                        About
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a id="nav-about" class="nav-link {% if request.endpoint=='dashboard.about' %}active{% endif %}"
+                            href="{{ url_for('dashboard.about') }}">
+                            <i class="bi bi-info-circle me-1"></i>About
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint=='dashboard.contact' %}active{% endif %}"
-                       href="{{ url_for('dashboard.contact') }}">
-                        Contact
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a id="nav-contact"
+                            class="nav-link {% if request.endpoint=='dashboard.contact' %}active{% endif %}"
+                            href="{{ url_for('dashboard.contact') }}">
+                            <i class="bi bi-envelope me-1"></i>Contact
+                        </a>
+                    </li>
 
-                <!-- USER -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                        {{ current_user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
-                    </ul>
-                </li>
+                    <!-- USER AVATAR DROPDOWN -->
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link nav-user-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                            id="userDropdown" aria-expanded="false" style="padding-right:0 !important;">
+                            <span class="user-avatar">{{ current_user.username[0].upper() }}</span>
+                            <span style="color:var(--text-muted);font-size:0.88rem;font-weight:500;">{{
+                                current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <span class="dropdown-item-text text-muted"
+                                    style="font-size:0.78rem;padding:0.4rem 1rem;">Signed in as</span>
+                            </li>
+                            <li>
+                                <span class="dropdown-item-text fw-600"
+                                    style="padding:0 1rem 0.5rem;font-size:0.88rem;color:var(--text-primary);">{{
+                                    current_user.username }}</span>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider" style="border-color:var(--glass-border);margin:0.25rem 0;">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
 
-            </ul>
+                </ul>
+            </div>
         </div>
+    </nav>
+
+    {% endif %}
+
+    <!-- ===== FLASH ALERTS ===== -->
+    <div class="container-fluid px-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible mt-3" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endwith %}
     </div>
-</nav>
 
-{% endif %}
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="container-fluid main-content">
+        {% block content %}{% endblock %}
+    </div>
 
-<!-- 🔔 ALERTS -->
-<div class="container-fluid">
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-        <div class="alert alert-{{ category }} mt-3">
-            {{ message }}
+    <!-- ===== PREMIUM FOOTER ===== -->
+    <footer class="site-footer">
+        <div class="container-fluid px-4">
+            <div class="row g-4">
+
+                <!-- COL 1: Brand -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand">
+                        <span class="footer-brand-icon"><i class="bi bi-graph-up-arrow"></i></span>
+                        Attrition AI
+                    </div>
+                    <p class="footer-tagline">
+                        An intelligent HR analytics platform powered by Machine Learning — helping organizations
+                        predict, understand, and prevent employee attrition.
+                    </p>
+                    <div class="mt-3 d-flex gap-2">
+                        <a href="https://github.com/akhilprp567/employee-attrition.git" class="tech-badge"><i
+                                class="bi bi-github"></i> GitHub</a>
+                        <a href="{{ url_for('dashboard.contact') }}" class="tech-badge"><i class="bi bi-envelope"></i>
+                            Contact</a>
+                    </div>
+                </div>
+
+                <!-- COL 2: Quick Links -->
+                <div class="col-lg-2 col-md-6">
+                    <p class="footer-heading">Navigation</p>
+                    <a href="{{ url_for('dashboard.index') }}" class="footer-link"><i
+                            class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                    <a href="{{ url_for('dashboard.employees') }}" class="footer-link"><i
+                            class="bi bi-people me-2"></i>Employees</a>
+                    <a href="{{ url_for('dashboard.analytics') }}" class="footer-link"><i
+                            class="bi bi-bar-chart-line me-2"></i>Analytics</a>
+                    <a href="{{ url_for('dashboard.about') }}" class="footer-link"><i
+                            class="bi bi-info-circle me-2"></i>About</a>
+                    <a href="{{ url_for('dashboard.contact') }}" class="footer-link"><i
+                            class="bi bi-envelope me-2"></i>Contact</a>
+                </div>
+
+                <!-- COL 3: Tech Stack -->
+                <div class="col-lg-3 col-md-6">
+                    <p class="footer-heading">Technology Stack</p>
+                    <div>
+                        <span class="tech-badge"><i class="bi bi-flask" style="color:#4facfe;"></i> Flask</span>
+                        <span class="tech-badge"><i class="bi bi-code-slash" style="color:#a78bfa;"></i> Python</span>
+                        <span class="tech-badge"><i class="bi bi-database" style="color:#43e97b;"></i> SQLAlchemy</span>
+                        <span class="tech-badge"><i class="bi bi-robot" style="color:#f7971e;"></i> ML Model</span>
+                        <span class="tech-badge"><i class="bi bi-bar-chart" style="color:#f5576c;"></i> Chart.js</span>
+                        <span class="tech-badge"><i class="bi bi-bootstrap" style="color:#7952b3;"></i> Bootstrap
+                            5</span>
+                    </div>
+                </div>
+
+                <!-- COL 4: System Status -->
+                <div class="col-lg-3 col-md-6">
+                    <p class="footer-heading">System</p>
+                    <div
+                        style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:16px;">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span
+                                style="width:8px;height:8px;border-radius:50%;background:#43e97b;display:inline-block;box-shadow:0 0 6px #43e97b;"></span>
+                            <span style="font-size:0.82rem;color:var(--text-muted);">System Operational</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span
+                                style="width:8px;height:8px;border-radius:50%;background:#4facfe;display:inline-block;box-shadow:0 0 6px #4facfe;"></span>
+                            <span style="font-size:0.82rem;color:var(--text-muted);">ML Model Ready</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span
+                                style="width:8px;height:8px;border-radius:50%;background:#f7971e;display:inline-block;box-shadow:0 0 6px #f7971e;"></span>
+                            <span style="font-size:0.82rem;color:var(--text-muted);">Database Active</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    {% endfor %}
-{% endwith %}
-</div>
 
-<!-- 📄 CONTENT -->
-<div class="container-fluid main-content">
-    {% block content %}{% endblock %}
-</div>
+        <!-- Bottom bar -->
+        <div class="footer-bottom-bar mt-4">
+            <div class="container-fluid px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <small>© 2026 Employee Attrition AI System. All rights reserved.</small>
+                <span class="ai-pill"><i class="bi bi-stars"></i> Powered by AI</span>
+            </div>
+        </div>
+    </footer>
 
-<!-- 🔻 FOOTER -->
-<footer class="bg-dark text-white text-center py-3">
-    <small>© 2026 Employee Attrition AI System</small>
-</footer>
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-{% block extra_js %}{% endblock %}
+    {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>

@@ -1,175 +1,520 @@
 {% extends "base.html" %}
+{% block title %}Employees — Attrition AI{% endblock %}
 
-{% block title %}Employees - Employee Attrition System{% endblock %}
+{% block extra_css %}
+<style>
+    /* ===== PAGE HERO ===== */
+    .emp-hero {
+        background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #16213e);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.75rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.5s ease both;
+    }
+    .emp-hero::before {
+        content:'';
+        position:absolute;
+        inset:0;
+        background: radial-gradient(circle at 90% 50%, rgba(79,172,254,0.12) 0%, transparent 55%);
+        pointer-events:none;
+    }
+    .emp-hero-title {
+        font-size:1.7rem;
+        font-weight:800;
+        background: linear-gradient(135deg, #fff 40%, #4facfe);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+        background-clip:text;
+        margin:0;
+    }
+    .emp-count-pill {
+        background: linear-gradient(135deg, rgba(79,172,254,0.2), rgba(0,242,254,0.2));
+        border: 1px solid rgba(79,172,254,0.3);
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.82rem;
+        color: #4facfe;
+        font-weight: 600;
+    }
+
+    /* ===== TOOLBAR ===== */
+    .emp-toolbar {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 0.9rem 1.2rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        animation: fadeInUp 0.5s ease both;
+    }
+    .emp-search {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(255,255,255,0.06) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 10px !important;
+        color: var(--text-primary) !important;
+        padding: 8px 14px 8px 38px !important;
+        font-size: 0.88rem !important;
+        position: relative;
+    }
+    .emp-search:focus-within {}
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+
+    .dept-filter {
+        min-width: 160px;
+        background: rgba(255,255,255,0.06) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 10px !important;
+        color: var(--text-primary) !important;
+        padding: 8px 12px !important;
+        font-size: 0.88rem !important;
+    }
+    .dept-filter option { background: var(--surface); }
+
+    .btn-add-emp {
+        background: linear-gradient(135deg, var(--primary), var(--primary-end));
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 18px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+    .btn-add-emp:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+        color: #fff;
+    }
+
+    /* ===== TABLE WRAPPER ===== */
+    .emp-table-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        animation: fadeInUp 0.6s ease both;
+    }
+    .emp-table-card .table { margin: 0; }
+    .emp-table-card thead tr {
+        background: linear-gradient(90deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08)) !important;
+    }
+    .emp-table-card thead th {
+        padding: 14px 16px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
+        color: rgba(255,255,255,0.45) !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        white-space: nowrap;
+    }
+    .emp-table-card tbody td {
+        padding: 13px 16px !important;
+        font-size: 0.88rem;
+        border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+        vertical-align: middle !important;
+    }
+    .emp-table-card tbody tr:last-child td { border-bottom: none !important; }
+    .emp-table-card tbody tr:hover { background: rgba(102,126,234,0.07) !important; }
+
+    /* Avatar */
+    .emp-avatar {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--primary-end));
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    /* Risk progress cell */
+    .risk-cell { position: relative; min-width: 100px; }
+    .risk-cell-bar {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        border-radius: 4px;
+        opacity: 0.13;
+    }
+    .risk-cell-text { position: relative; font-weight: 700; font-size: 0.85rem; }
+
+    /* Action buttons */
+    .btn-edit {
+        width: 30px; height: 30px;
+        border-radius: 8px;
+        background: rgba(247,151,30,0.15);
+        border: 1px solid rgba(247,151,30,0.25);
+        color: #fbbf24;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+    .btn-edit:hover { background: rgba(247,151,30,0.3); transform: scale(1.1); }
+
+    .btn-del {
+        width: 30px; height: 30px;
+        border-radius: 8px;
+        background: rgba(245,87,108,0.12);
+        border: 1px solid rgba(245,87,108,0.22);
+        color: #f87171;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    .btn-del:hover { background: rgba(245,87,108,0.28); transform: scale(1.1); color: #f87171; }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+    .empty-state-icon { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.4; }
+
+    /* ===== MODALS ===== */
+    .modal-header-grad {
+        background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+        border-bottom: 1px solid var(--glass-border) !important;
+        border-radius: calc(var(--radius-xl) - 1px) calc(var(--radius-xl) - 1px) 0 0;
+    }
+    .modal-section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 1rem 0 0.5rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid var(--glass-border);
+    }
+    .btn-save-grad {
+        background: linear-gradient(135deg, var(--primary), var(--primary-end));
+        color: #fff; border: none; border-radius: 10px; font-weight: 600;
+        width: 100%; padding: 10px; font-size: 0.92rem; transition: var(--transition);
+    }
+    .btn-save-grad:hover { opacity: 0.88; transform: translateY(-1px); color: #fff; box-shadow: 0 8px 24px rgba(102,126,234,0.4); }
+    .btn-update-grad {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+        color: #1a1a2e; border: none; border-radius: 10px; font-weight: 700;
+        width: 100%; padding: 10px; font-size: 0.92rem; transition: var(--transition);
+    }
+    .btn-update-grad:hover { opacity: 0.88; transform: translateY(-1px); }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-2">
 
-    <!-- HEADER -->
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="display-5 fw-bold mb-2">
-                    <i class="bi bi-people"></i> Employees
-                </h1>
-                <p class="text-muted">Manage employee data with AI insights</p>
-            </div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
-                <i class="bi bi-plus-circle"></i> Add Employee
-            </button>
+<!-- ===== HERO ===== -->
+<div class="emp-hero">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h1 class="emp-hero-title"><i class="bi bi-people-fill me-2"></i>Employees</h1>
+            <p style="color:var(--text-muted);font-size:0.88rem;margin:0.3rem 0 0;">Manage workforce data with AI-powered attrition insights</p>
         </div>
+        <span class="emp-count-pill"><i class="bi bi-person-badge me-1"></i>{{ employees|length }} Records</span>
     </div>
-
-    <!-- TABLE -->
-    <div class="card shadow-sm">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Job Role</th>
-                        <th>Salary</th>
-                        <th>Risk</th>
-                        <th>AI Reason</th>
-                        <th>Status</th>
-                        <th>Actions</th> <!-- ✅ NEW -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for emp in employees %}
-                    <tr>
-                        <td>{{ emp.employee_id }}</td>
-                        <td>{{ emp.name }}</td>
-                        <td>{{ emp.department or "N/A" }}</td>
-                        <td>{{ emp.job_role or "N/A" }}</td>
-                        <td>₹{{ emp.monthly_income or 0 }}</td>
-
-                        <!-- RISK -->
-                        <td>
-                            {% if emp.attrition_risk_score %}
-                                {% set risk = emp.attrition_risk_score %}
-                                {% if risk > 0.67 %}
-                                    <span class="badge bg-danger">{{ (risk*100)|round(2) }}%</span>
-                                {% elif risk > 0.33 %}
-                                    <span class="badge bg-warning text-dark">{{ (risk*100)|round(2) }}%</span>
-                                {% else %}
-                                    <span class="badge bg-success">{{ (risk*100)|round(2) }}%</span>
-                                {% endif %}
-                            {% else %}
-                                <span class="badge bg-secondary">N/A</span>
-                            {% endif %}
-                        </td>
-
-                        <!-- AI REASON -->
-                        <td>{{ emp.attrition_reason or "Stable" }}</td>
-
-                        <td>
-                            <span class="badge bg-info">{{ emp.employment_status }}</span>
-                        </td>
-
-                        <!-- ✅ ACTION BUTTONS -->
-                        <td>
-                            <!-- EDIT -->
-                            <button class="btn btn-sm btn-warning"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal{{ emp.id }}">
-                                ✏️
-                            </button>
-
-                            <!-- DELETE -->
-                            <a href="{{ url_for('dashboard.delete_employee', id=emp.id) }}"
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Delete this employee?')">
-                               🗑️
-                            </a>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="9" class="text-center">No data available</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
 
+<!-- ===== TOOLBAR ===== -->
+<div class="emp-toolbar">
+    <div class="search-wrap">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="empSearch" class="form-control emp-search" placeholder="Search by name, department, role…">
+    </div>
+    <select id="deptFilter" class="form-select dept-filter">
+        <option value="">All Departments</option>
+        {% for dept in departments %}
+        <option value="{{ dept }}">{{ dept }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn-add-emp" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+        <i class="bi bi-plus-circle me-1"></i> Add Employee
+    </button>
+</div>
 
-<!-- ================= ADD EMPLOYEE ================= -->
-<div class="modal fade" id="addEmployeeModal">
-    <div class="modal-dialog">
+<!-- ===== TABLE ===== -->
+<div class="emp-table-card">
+    <div class="table-responsive">
+        <table class="table table-hover" id="empTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee</th>
+                    <th>Department</th>
+                    <th>Job Role</th>
+                    <th>Salary</th>
+                    <th>Risk Score</th>
+                    <th>AI Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="empTableBody">
+                {% for emp in employees %}
+                <tr data-name="{{ emp.name|lower }}" data-dept="{{ (emp.department or '')|lower }}">
+                    <td style="color:var(--text-muted);font-size:0.8rem;">{{ emp.employee_id }}</td>
+
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="emp-avatar">{{ (emp.name or 'E')[0].upper() }}</div>
+                            <span style="font-weight:500;">{{ emp.name }}</span>
+                        </div>
+                    </td>
+
+                    <td><span style="font-size:0.85rem;color:var(--text-muted);">{{ emp.department or 'N/A' }}</span></td>
+                    <td><span style="font-size:0.85rem;">{{ emp.job_role or 'N/A' }}</span></td>
+                    <td style="font-weight:600;">₹{{ emp.monthly_income or 0 }}</td>
+
+                    <!-- RISK CELL -->
+                    <td class="risk-cell">
+                        {% if emp.attrition_risk_score %}
+                            {% set risk = emp.attrition_risk_score %}
+                            {% set pct = (risk*100)|round(2) %}
+                            {% if risk > 0.67 %}
+                                <div class="risk-cell-bar" style="width:{{ pct }}%;background:#f5576c;"></div>
+                                <span class="risk-cell-text" style="color:#f87171;">{{ pct }}%</span>
+                            {% elif risk > 0.33 %}
+                                <div class="risk-cell-bar" style="width:{{ pct }}%;background:#f7971e;"></div>
+                                <span class="risk-cell-text" style="color:#fbbf24;">{{ pct }}%</span>
+                            {% else %}
+                                <div class="risk-cell-bar" style="width:{{ pct }}%;background:#4facfe;"></div>
+                                <span class="risk-cell-text" style="color:#60a5fa;">{{ pct }}%</span>
+                            {% endif %}
+                        {% else %}
+                            <span style="color:var(--text-muted);font-size:0.82rem;">N/A</span>
+                        {% endif %}
+                    </td>
+
+                    <td><span style="font-size:0.8rem;color:var(--text-muted);">{{ emp.attrition_reason or 'Stable' }}</span></td>
+
+                    <td>
+                        {% if emp.employment_status == 'Active' %}
+                            <span style="background:rgba(67,233,123,0.15);border:1px solid rgba(67,233,123,0.25);color:#4ade80;border-radius:8px;padding:3px 10px;font-size:0.75rem;font-weight:600;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:4px;box-shadow:0 0 4px #4ade80;"></span>Active
+                            </span>
+                        {% else %}
+                            <span style="background:rgba(148,163,184,0.15);border:1px solid rgba(148,163,184,0.2);color:#94a3b8;border-radius:8px;padding:3px 10px;font-size:0.75rem;font-weight:600;">{{ emp.employment_status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ emp.id }}" title="Edit employee">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <a href="{{ url_for('dashboard.delete_employee', id=emp.id) }}"
+                               class="btn-del"
+                               onclick="return confirm('Delete {{ emp.name }}? This cannot be undone.')"
+                               title="Delete employee">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr id="emptyRow">
+                    <td colspan="9">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <h5 style="color:var(--text-primary);margin-bottom:0.5rem;">No Employees Yet</h5>
+                            <p style="font-size:0.88rem;margin-bottom:1.5rem;">Add your first employee to start getting AI-powered attrition insights.</p>
+                            <button class="btn-add-emp" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                                <i class="bi bi-plus-circle me-1"></i> Add First Employee
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- No results row (hidden by default) -->
+<div id="noResultsMsg" style="display:none;text-align:center;padding:2rem;color:var(--text-muted);">
+    <i class="bi bi-search" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.75rem;"></i>
+    No employees match your search.
+</div>
+
+</div><!-- container -->
+
+
+<!-- ===== ADD EMPLOYEE MODAL ===== -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h5>Add Employee</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header modal-header-grad">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i>Add New Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <div class="modal-body">
-
+            <div class="modal-body p-4">
                 <form method="POST" action="{{ url_for('dashboard.add_employee') }}">
 
-                    <input class="form-control mb-2" name="employee_id" placeholder="Employee ID" required>
-                    <input class="form-control mb-2" name="name" placeholder="Name" required>
+                    <p class="modal-section-label">📋 Basic Information</p>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <input class="form-control" name="employee_id" placeholder="Employee ID" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="name" placeholder="Full Name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="age" type="number" placeholder="Age" min="18" max="65">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="department" placeholder="Department">
+                        </div>
+                        <div class="col-md-12">
+                            <input class="form-control" name="job_role" placeholder="Job Role">
+                        </div>
+                    </div>
 
-                    <input class="form-control mb-2" name="age" placeholder="Age">
-                    <input class="form-control mb-2" name="department" placeholder="Department">
-                    <input class="form-control mb-2" name="job_role" placeholder="Job Role">
+                    <p class="modal-section-label">💰 Compensation</p>
+                    <div class="row g-2">
+                        <div class="col-md-12">
+                            <input class="form-control" name="monthly_income" type="number" placeholder="Monthly Income (₹)" required>
+                        </div>
+                    </div>
 
-                    <input class="form-control mb-2" name="monthly_income" placeholder="Monthly Income (₹)" required>
+                    <p class="modal-section-label">🤖 ML Prediction Inputs</p>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <input class="form-control" name="job_satisfaction" type="number" placeholder="Job Satisfaction (1–4)" min="1" max="4">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="work_life_balance" type="number" placeholder="Work Life Balance (1–4)" min="1" max="4">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="years_at_company" type="number" placeholder="Years at Company" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="years_in_role" type="number" placeholder="Years in Current Role" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="years_since_promotion" type="number" placeholder="Years Since Last Promotion" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="form-control" name="distance" type="number" placeholder="Distance From Home (km)" min="1">
+                        </div>
+                    </div>
 
-                    <input class="form-control mb-2" name="job_satisfaction" placeholder="Job Satisfaction (1-4)">
-                    <input class="form-control mb-2" name="work_life_balance" placeholder="Work Life Balance (1-4)">
-                    <input class="form-control mb-2" name="years_at_company" placeholder="Years at Company">
-                    <input class="form-control mb-2" name="years_in_role" placeholder="Years in Role">
-                    <input class="form-control mb-2" name="years_since_promotion" placeholder="Years Since Promotion">
-                    <input class="form-control mb-2" name="distance" placeholder="Distance From Home (km)">
-
-                    <button class="btn btn-primary w-100">Save</button>
+                    <div class="mt-3">
+                        <button type="submit" class="btn-save-grad">
+                            <i class="bi bi-robot me-2"></i>Run AI Prediction & Save
+                        </button>
+                    </div>
 
                 </form>
-
             </div>
-
         </div>
     </div>
 </div>
 
 
-<!-- ================= EDIT MODALS ================= -->
+<!-- ===== EDIT MODALS ===== -->
 {% for emp in employees %}
-<div class="modal fade" id="editModal{{ emp.id }}">
+<div class="modal fade" id="editModal{{ emp.id }}" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-
-            <div class="modal-header">
-                <h5>Edit Employee</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header modal-header-grad">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-
-            <div class="modal-body">
-
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3 p-3" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;">
+                    <div class="emp-avatar" style="width:44px;height:44px;font-size:1rem;">{{ (emp.name or 'E')[0].upper() }}</div>
+                    <div>
+                        <div style="font-weight:600;">{{ emp.name }}</div>
+                        <div style="font-size:0.78rem;color:var(--text-muted);">ID: {{ emp.employee_id }}</div>
+                    </div>
+                </div>
                 <form method="POST" action="{{ url_for('dashboard.edit_employee', id=emp.id) }}">
-
-                    <input class="form-control mb-2" name="name" value="{{ emp.name }}">
-                    <input class="form-control mb-2" name="age" value="{{ emp.age }}">
-                    <input class="form-control mb-2" name="department" value="{{ emp.department }}">
-                    <input class="form-control mb-2" name="job_role" value="{{ emp.job_role }}">
-                    <input class="form-control mb-2" name="monthly_income" value="{{ emp.monthly_income }}">
-
-                    <button class="btn btn-success w-100">Update</button>
-
+                    <div class="row g-2">
+                        <div class="col-md-12">
+                            <label style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Full Name</label>
+                            <input class="form-control" name="name" value="{{ emp.name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Age</label>
+                            <input class="form-control" name="age" type="number" value="{{ emp.age }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Department</label>
+                            <input class="form-control" name="department" value="{{ emp.department }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Job Role</label>
+                            <input class="form-control" name="job_role" value="{{ emp.job_role }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;">Monthly Income (₹)</label>
+                            <input class="form-control" name="monthly_income" type="number" value="{{ emp.monthly_income }}">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn-update-grad">
+                            <i class="bi bi-check2-circle me-2"></i>Update Employee
+                        </button>
+                    </div>
                 </form>
-
             </div>
-
         </div>
     </div>
 </div>
 {% endfor %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* ===== Live Search + Department Filter ===== */
+const searchInput  = document.getElementById('empSearch');
+const deptFilter   = document.getElementById('deptFilter');
+const rows         = document.querySelectorAll('#empTableBody tr[data-name]');
+const noResultsMsg = document.getElementById('noResultsMsg');
+
+function filterTable() {
+    const q    = searchInput.value.toLowerCase().trim();
+    const dept = deptFilter.value.toLowerCase();
+    let visible = 0;
+    rows.forEach(row => {
+        const name     = row.dataset.name || '';
+        const rowDept  = row.dataset.dept || '';
+        const rowText  = row.textContent.toLowerCase();
+        const matchQ   = !q    || name.includes(q)    || rowText.includes(q);
+        const matchD   = !dept || rowDept.includes(dept);
+        if (matchQ && matchD) {
+            row.style.display = '';
+            visible++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    noResultsMsg.style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+}
+
+searchInput.addEventListener('input',  filterTable);
+deptFilter.addEventListener('change', filterTable);
+</script>
 {% endblock %}

@@ -1,36 +1,223 @@
 {% extends "base.html" %}
+{% block title %}Contact — Attrition AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contact-hero {
+        background: linear-gradient(135deg, #0f0f1a, #1a1a2e, #16213e);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 1.75rem 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        animation: fadeInDown 0.5s ease both;
+    }
+
+    .contact-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 85% 50%, rgba(240, 147, 251, 0.1) 0%, transparent 55%);
+        pointer-events: none;
+    }
+
+    .contact-hero-title {
+        font-size: 1.7rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 40%, #f093fb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 0;
+    }
+
+    /* Form card */
+    .contact-form-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        animation: fadeInUp 0.5s ease both;
+    }
+
+    /* Floating label override for dark theme */
+    .form-floating label {
+        color: var(--text-muted) !important;
+    }
+
+    .form-floating>.form-control:focus~label,
+    .form-floating>.form-control:not(:placeholder-shown)~label {
+        color: #a78bfa !important;
+    }
+
+    .form-floating>.form-control {
+        padding-top: 1.8rem !important;
+    }
+
+    .btn-contact-send {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 0;
+        width: 100%;
+        font-weight: 600;
+        font-size: 0.92rem;
+        transition: var(--transition);
+    }
+
+    .btn-contact-send:hover {
+        opacity: 0.88;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(245, 87, 108, 0.4);
+        color: #fff;
+    }
+
+    /* Info cards */
+    .contact-info-card {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 14px;
+        padding: 1.2rem 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: var(--transition);
+        animation: slideInLeft 0.5s ease both;
+    }
+
+    .contact-info-card:hover {
+        border-color: rgba(240, 147, 251, 0.3);
+        transform: translateX(4px);
+    }
+
+    .contact-info-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    .contact-info-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted);
+    }
+
+    .contact-info-value {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="container-fluid py-2">
 
-<div class="container py-5">
-    <div class="card shadow p-5 rounded-4">
+    <!-- HERO -->
+    <div class="contact-hero mb-4">
+        <h1 class="contact-hero-title"><i class="bi bi-envelope me-2"></i>Contact Us</h1>
+        <p style="color:var(--text-muted);font-size:0.88rem;margin:0.35rem 0 0;">Have questions or feedback? We'd love
+            to hear from you.</p>
+    </div>
 
-        <h2 class="fw-bold mb-4">📞 Contact Us</h2>
+    <div class="row g-4">
 
-        <!-- ✅ IMPORTANT FIX -->
-        <form method="POST" action="{{ url_for('dashboard.contact') }}">
+        <!-- FORM -->
+        <div class="col-lg-7">
+            <div class="contact-form-card">
+                <h5 style="font-weight:700;margin-bottom:1.5rem;">Send a Message</h5>
+                <form method="POST" action="{{ url_for('dashboard.contact') }}">
 
-            <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input type="text" name="name" class="form-control rounded-3" required>
+                    <div class="form-floating mb-3">
+                        <input type="text" name="name" class="form-control" id="contactName" placeholder=" " required>
+                        <label for="contactName"><i class="bi bi-person me-1"></i>Your Name</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="email" name="email" class="form-control" id="contactEmail" placeholder=" " required>
+                        <label for="contactEmail"><i class="bi bi-envelope me-1"></i>Email Address</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        <textarea name="message" class="form-control" id="contactMsg" placeholder=" " style="height:130px;" required></textarea>
+                        <label for="contactMsg"><i class="bi bi-chat-text me-1"></i>Your Message</label>
+                    </div>
+
+                    <button type="submit" class="btn-contact-send">
+                        <i class="bi bi-send me-2"></i>Send Message
+                    </button>
+
+                </form>
             </div>
+        </div>
 
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-control rounded-3" required>
+        <!-- INFO PANEL -->
+        <div class="col-lg-5">
+            <div class="d-flex flex-column gap-3">
+
+                <div class="contact-info-card">
+                    <div class="contact-info-icon" style="background:rgba(240,147,251,0.15);color:#f093fb;">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                    <div>
+                        <div class="contact-info-label">Email</div>
+                        <div class="contact-info-value">support@attritionai.io</div>
+                    </div>
+                </div>
+
+                <div class="contact-info-card" style="animation-delay:0.1s;">
+                    <div class="contact-info-icon" style="background:rgba(79,172,254,0.15);color:#4facfe;">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <div>
+                        <div class="contact-info-label">Location</div>
+                        <div class="contact-info-value">India 🇮🇳</div>
+                    </div>
+                </div>
+
+                <div class="contact-info-card" style="animation-delay:0.2s;">
+                    <div class="contact-info-icon" style="background:rgba(67,233,123,0.15);color:#43e97b;">
+                        <i class="bi bi-clock-fill"></i>
+                    </div>
+                    <div>
+                        <div class="contact-info-label">Response Time</div>
+                        <div class="contact-info-value">Within 24 hours</div>
+                    </div>
+                </div>
+
+                <div class="contact-info-card" style="animation-delay:0.3s;">
+                    <div class="contact-info-icon" style="background:rgba(247,151,30,0.15);color:#f7971e;">
+                        <i class="bi bi-github"></i>
+                    </div>
+                    <div>
+                        <div class="contact-info-label">GitHub</div>
+                        <div class="contact-info-value">github.com/employee-attrition</div>
+                    </div>
+                </div>
+
+                <!-- Status box -->
+                <div
+                    style="background:linear-gradient(135deg,rgba(67,233,123,0.1),rgba(79,172,254,0.1));border:1px solid rgba(67,233,123,0.2);border-radius:14px;padding:1.2rem;">
+                    <div style="font-size:0.8rem;color:var(--text-muted);font-weight:600;margin-bottom:0.5rem;">SYSTEM
+                        STATUS</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span
+                            style="width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;display:inline-block;"></span>
+                        <span style="font-size:0.88rem;color:#4ade80;font-weight:600;">All systems operational</span>
+                    </div>
+                </div>
+
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">Message</label>
-                <textarea name="message" class="form-control rounded-3" rows="4" required></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-dark px-4">
-                <i class="bi bi-send"></i> Send Message
-            </button>
-
-        </form>
+        </div>
 
     </div>
 </div>
-
 {% endblock %}
