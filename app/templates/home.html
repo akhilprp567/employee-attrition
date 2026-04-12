@@ -1,0 +1,928 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Attrition AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ===== 3D LANDING PAGE ===== */
+
+    /* Override main-content padding for full-width landing */
+    .main-content { padding: 0 !important; }
+
+    /* ===== HERO SECTION ===== */
+    .hero-landing {
+        position: relative;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 4rem 2rem;
+    }
+
+    /* Perspective grid floor */
+    .hero-landing::before {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        left: -20%;
+        right: -20%;
+        height: 60%;
+        background-image:
+            linear-gradient(rgba(102,126,234,0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(102,126,234,0.12) 1px, transparent 1px);
+        background-size: 60px 60px;
+        transform: perspective(500px) rotateX(55deg);
+        transform-origin: center bottom;
+        pointer-events: none;
+        mask-image: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+        -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+    }
+
+    /* Glow orbs */
+    .hero-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.3;
+        pointer-events: none;
+        animation: orbFloat 8s ease-in-out infinite;
+    }
+    .hero-orb-1 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, #667eea, transparent 70%);
+        top: -10%; left: -5%;
+        animation-delay: 0s;
+    }
+    .hero-orb-2 {
+        width: 350px; height: 350px;
+        background: radial-gradient(circle, #764ba2, transparent 70%);
+        bottom: 5%; right: -5%;
+        animation-delay: -3s;
+    }
+    .hero-orb-3 {
+        width: 250px; height: 250px;
+        background: radial-gradient(circle, #4facfe, transparent 70%);
+        top: 30%; right: 20%;
+        animation-delay: -5s;
+    }
+
+    @keyframes orbFloat {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(20px, -30px) scale(1.05); }
+        66% { transform: translate(-15px, 20px) scale(0.95); }
+    }
+
+    /* Hero center content */
+    .hero-center {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        max-width: 850px;
+        animation: heroFadeIn 1s ease both;
+    }
+
+    @keyframes heroFadeIn {
+        from { opacity: 0; transform: translateY(40px) scale(0.96); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+        border: 1px solid rgba(102,126,234,0.35);
+        border-radius: 50px;
+        padding: 8px 22px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #a78bfa;
+        margin-bottom: 2rem;
+        animation: floatBadge 4s ease-in-out infinite;
+    }
+    @keyframes floatBadge {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+
+    .hero-main-title {
+        font-size: clamp(2.8rem, 6vw, 4.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        letter-spacing: -2px;
+    }
+    .hero-main-title .gradient-word {
+        background: linear-gradient(135deg, #667eea 0%, #a78bfa 40%, #f5576c 80%, #f093fb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        background-size: 200% auto;
+        animation: gradientShift 4s ease infinite;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% center; }
+        50% { background-position: 100% center; }
+        100% { background-position: 0% center; }
+    }
+
+    .hero-description {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        max-width: 600px;
+        margin: 0 auto 2.5rem;
+        line-height: 1.7;
+    }
+
+    .hero-cta-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .cta-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-end));
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 8px 30px rgba(102,126,234,0.4);
+        transition: all 0.3s ease;
+    }
+    .cta-primary:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 14px 40px rgba(102,126,234,0.6);
+        color: #fff;
+    }
+    .cta-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        color: var(--text-muted);
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .cta-secondary:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        transform: translateY(-3px);
+        border-color: rgba(102,126,234,0.4);
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        animation: scrollBounce 2s ease-in-out infinite;
+    }
+    @keyframes scrollBounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(8px); }
+    }
+    .scroll-indicator .scroll-line {
+        width: 1px;
+        height: 30px;
+        background: linear-gradient(to bottom, rgba(102,126,234,0.6), transparent);
+    }
+
+
+    /* ===== SECTION COMMON ===== */
+    .landing-section {
+        padding: 5rem 2rem;
+        position: relative;
+    }
+    .section-title-wrapper {
+        text-align: center;
+        margin-bottom: 3.5rem;
+    }
+    .section-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 0.75rem;
+    }
+    .section-main-title {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+        margin: 0;
+    }
+    .section-subtitle {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-top: 0.6rem;
+    }
+
+    /* ===== 3D NAVIGATION CARDS ===== */
+    .nav-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 28px;
+        max-width: 1200px;
+        margin: 0 auto;
+        perspective: 1200px;
+    }
+
+    .nav-card-3d {
+        position: relative;
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        cursor: pointer;
+        text-decoration: none !important;
+        color: inherit !important;
+        transform-style: preserve-3d;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(60px) rotateX(8deg);
+        animation: cardReveal 0.8s ease forwards;
+    }
+    .nav-card-3d:nth-child(1) { animation-delay: 0.1s; }
+    .nav-card-3d:nth-child(2) { animation-delay: 0.2s; }
+    .nav-card-3d:nth-child(3) { animation-delay: 0.3s; }
+    .nav-card-3d:nth-child(4) { animation-delay: 0.4s; }
+    .nav-card-3d:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes cardReveal {
+        to { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+
+    .nav-card-3d::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 24px;
+        padding: 1px;
+        background: linear-gradient(135deg, rgba(102,126,234,0.3), transparent 50%, rgba(245,87,108,0.2));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .nav-card-3d:hover::before {
+        opacity: 1;
+    }
+
+    /* Shine sweep on hover */
+    .nav-card-3d::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            135deg,
+            transparent 30%,
+            rgba(255,255,255,0.04) 45%,
+            rgba(255,255,255,0.08) 50%,
+            rgba(255,255,255,0.04) 55%,
+            transparent 70%
+        );
+        transform: rotate(0deg) translateX(-100%);
+        transition: transform 0.8s ease;
+        pointer-events: none;
+    }
+    .nav-card-3d:hover::after {
+        transform: rotate(0deg) translateX(100%);
+    }
+
+    .nav-card-3d:hover {
+        transform: translateY(-12px) scale(1.02);
+        border-color: rgba(102,126,234,0.35);
+        box-shadow:
+            0 30px 60px rgba(0,0,0,0.4),
+            0 0 40px rgba(102,126,234,0.15),
+            inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .card-icon-3d {
+        width: 72px;
+        height: 72px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        transform: translateZ(30px);
+        transition: transform 0.4s ease;
+    }
+    .nav-card-3d:hover .card-icon-3d {
+        transform: translateZ(40px) scale(1.1);
+    }
+
+    .card-title-3d {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.6rem;
+        letter-spacing: -0.3px;
+    }
+    .card-desc-3d {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    .card-arrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--primary);
+        transition: all 0.3s ease;
+    }
+    .nav-card-3d:hover .card-arrow {
+        gap: 12px;
+        color: #a78bfa;
+    }
+
+    /* Card theme colors */
+    .card-theme-purple .card-icon-3d {
+        background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25));
+        color: #a78bfa;
+        box-shadow: 0 8px 25px rgba(102,126,234,0.2);
+    }
+    .card-theme-cyan .card-icon-3d {
+        background: linear-gradient(135deg, rgba(79,172,254,0.25), rgba(0,242,254,0.25));
+        color: #67e8f9;
+        box-shadow: 0 8px 25px rgba(79,172,254,0.2);
+    }
+    .card-theme-pink .card-icon-3d {
+        background: linear-gradient(135deg, rgba(245,87,108,0.25), rgba(240,147,251,0.25));
+        color: #f472b6;
+        box-shadow: 0 8px 25px rgba(245,87,108,0.2);
+    }
+    .card-theme-green .card-icon-3d {
+        background: linear-gradient(135deg, rgba(67,233,123,0.25), rgba(56,249,215,0.25));
+        color: #34d399;
+        box-shadow: 0 8px 25px rgba(67,233,123,0.2);
+    }
+    .card-theme-orange .card-icon-3d {
+        background: linear-gradient(135deg, rgba(247,151,30,0.25), rgba(255,210,0,0.25));
+        color: #fbbf24;
+        box-shadow: 0 8px 25px rgba(247,151,30,0.2);
+    }
+
+    /* Card tag pills */
+    .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 1.2rem;
+    }
+    .card-tag {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.3px;
+    }
+
+    /* ===== STATS COUNTER SECTION ===== */
+    .stats-section {
+        background: linear-gradient(180deg, transparent, rgba(22,33,62,0.5), transparent);
+        padding: 5rem 2rem;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .stat-block {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-block::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    .stat-block:hover::before { opacity: 1; }
+    .stat-block:hover {
+        transform: translateY(-6px);
+        border-color: rgba(102,126,234,0.2);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .stat-number {
+        font-size: 2.8rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    .stat-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    /* Stat colors */
+    .stat-purple .stat-number {
+        background: linear-gradient(135deg, var(--primary), #a78bfa);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-pink .stat-number {
+        background: linear-gradient(135deg, #f5576c, #f093fb);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-cyan .stat-number {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-green .stat-number {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+
+    /* ===== FEATURES SECTION ===== */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .feature-block {
+        padding: 2rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        transition: all 0.4s ease;
+        position: relative;
+    }
+    .feature-block:hover {
+        transform: translateY(-8px) scale(1.01);
+        border-color: rgba(102,126,234,0.25);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        background: rgba(255,255,255,0.05);
+    }
+    .feature-icon {
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.2rem;
+    }
+    .feature-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+    .feature-desc {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+
+    /* ===== CTA BANNER ===== */
+    .cta-banner {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 4rem 3rem;
+        background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+        border: 1px solid rgba(102,126,234,0.25);
+        border-radius: 32px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .cta-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(102,126,234,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(102,126,234,0.06) 1px, transparent 1px);
+        background-size: 30px 30px;
+        pointer-events: none;
+    }
+    .cta-banner-title {
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .cta-banner-desc {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-on-scroll.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+
+    /* ===== FLOATING PARTICLES ===== */
+    .particle {
+        position: absolute;
+        width: 4px; height: 4px;
+        background: rgba(102,126,234,0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        .hero-landing { min-height: 85vh; padding: 3rem 1.5rem; }
+        .nav-cards-grid { grid-template-columns: 1fr; gap: 20px; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .cta-banner { padding: 2.5rem 1.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== FLOATING PARTICLES ===== -->
+<div id="particleContainer" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;"></div>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-landing">
+    <!-- Glow orbs -->
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+
+    <div class="hero-center">
+        <div class="hero-badge">
+            <i class="bi bi-stars"></i>
+            AI-Powered HR Intelligence Platform
+        </div>
+
+        <h1 class="hero-main-title">
+            Predict & Prevent<br>
+            <span class="gradient-word">Employee Attrition</span>
+        </h1>
+
+        <p class="hero-description">
+            Harness the power of machine learning to analyze workforce patterns,
+            identify at-risk employees, and make data-driven retention decisions — all in real time.
+        </p>
+
+        <div class="hero-cta-group">
+            <a href="{{ url_for('dashboard.attrition_analyzer') }}" class="cta-primary">
+                <i class="bi bi-graph-up-arrow"></i> Launch Analyzer
+            </a>
+            <a href="{{ url_for('dashboard.employees') }}" class="cta-secondary">
+                <i class="bi bi-people"></i> View Employees
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+        <span>Explore</span>
+        <div class="scroll-line"></div>
+        <i class="bi bi-chevron-down"></i>
+    </div>
+</section>
+
+
+<!-- ===== LIVE STATS ===== -->
+<section class="stats-section reveal-on-scroll">
+    <div class="stats-grid">
+        <div class="stat-block stat-purple">
+            <div class="stat-number" data-count="{{ total_employees }}">0</div>
+            <div class="stat-label">Total Employees</div>
+        </div>
+        <div class="stat-block stat-pink">
+            <div class="stat-number" data-count="{{ total_attrited }}">0</div>
+            <div class="stat-label">At Risk</div>
+        </div>
+        <div class="stat-block stat-cyan">
+            <div class="stat-number" data-count="{{ attrition_rate }}" data-suffix="%">0</div>
+            <div class="stat-label">Attrition Rate</div>
+        </div>
+        <div class="stat-block stat-green">
+            <div class="stat-number" data-count="{{ high_risk_count }}">0</div>
+            <div class="stat-label">High Risk</div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ===== NAVIGATION CARDS ===== -->
+<section class="landing-section reveal-on-scroll" id="explore">
+    <div class="section-title-wrapper">
+        <div class="section-eyebrow"><i class="bi bi-grid-3x3-gap"></i> Explore Modules</div>
+        <h2 class="section-main-title">Your Command Center</h2>
+        <p class="section-subtitle">Dive into any module to unlock powerful HR insights</p>
+    </div>
+
+    <!-- Glow background for cards -->
+    <div style="position:absolute;top:20%;left:50%;transform:translateX(-50%);width:80%;height:60%;background:radial-gradient(circle,rgba(102,126,234,0.05) 0%,transparent 70%);pointer-events:none;z-index:-1;"></div>
+
+    <div class="nav-cards-grid">
+
+        <!-- CARD 1: Attrition Analyzer -->
+        <a href="{{ url_for('dashboard.attrition_analyzer') }}" class="nav-card-3d card-theme-purple" id="card-attrition">
+            <div class="card-icon-3d">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">KPI Dashboard</span>
+                <span class="card-tag">Risk Gauge</span>
+                <span class="card-tag">Charts</span>
+            </div>
+            <h3 class="card-title-3d">Attrition Analyzer</h3>
+            <p class="card-desc-3d">
+                Real-time KPIs, risk segmentation, department analytics, and ML-powered attrition predictions at a glance
+            </p>
+            <span class="card-arrow">
+                Launch Analyzer <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+        <!-- CARD 2: Employee Analytics -->
+        <a href="{{ url_for('dashboard.analytics') }}" class="nav-card-3d card-theme-cyan" id="card-analytics">
+            <div class="card-icon-3d">
+                <i class="bi bi-bar-chart-line"></i>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">Job Roles</span>
+                <span class="card-tag">Salary Analysis</span>
+                <span class="card-tag">Experience</span>
+            </div>
+            <h3 class="card-title-3d">Employee Analytics</h3>
+            <p class="card-desc-3d">
+                Deep-dive into job role distributions, salary brackets, experience trends, and workforce composition analytics
+            </p>
+            <span class="card-arrow">
+                View Analytics <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+        <!-- CARD 3: Employees -->
+        <a href="{{ url_for('dashboard.employees') }}" class="nav-card-3d card-theme-pink" id="card-employees">
+            <div class="card-icon-3d">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">Add / Edit</span>
+                <span class="card-tag">ML Prediction</span>
+                <span class="card-tag">Manage</span>
+            </div>
+            <h3 class="card-title-3d">Employee Manager</h3>
+            <p class="card-desc-3d">
+                Add, edit, and manage employees. Get instant AI-powered attrition risk predictions for every team member
+            </p>
+            <span class="card-arrow">
+                Manage Employees <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+        <!-- CARD 4: Contact -->
+        <a href="{{ url_for('dashboard.contact') }}" class="nav-card-3d card-theme-green" id="card-contact">
+            <div class="card-icon-3d">
+                <i class="bi bi-envelope-paper"></i>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">Feedback</span>
+                <span class="card-tag">Support</span>
+                <span class="card-tag">Messages</span>
+            </div>
+            <h3 class="card-title-3d">Contact & Support</h3>
+            <p class="card-desc-3d">
+                Reach out with questions, feedback, or feature requests. Our team is here to help you succeed
+            </p>
+            <span class="card-arrow">
+                Get In Touch <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+        <!-- CARD 5: About -->
+        <a href="{{ url_for('dashboard.about') }}" class="nav-card-3d card-theme-orange" id="card-about">
+            <div class="card-icon-3d">
+                <i class="bi bi-info-circle"></i>
+            </div>
+            <div class="card-tags">
+                <span class="card-tag">Platform</span>
+                <span class="card-tag">Team</span>
+                <span class="card-tag">Technology</span>
+            </div>
+            <h3 class="card-title-3d">About Platform</h3>
+            <p class="card-desc-3d">
+                Learn about the technology, the team, and the mission behind this intelligent HR analytics platform
+            </p>
+            <span class="card-arrow">
+                Learn More <i class="bi bi-arrow-right"></i>
+            </span>
+        </a>
+
+    </div>
+</section>
+
+
+<!-- ===== HOW IT WORKS SECTION (RE-ADDED) ===== -->
+<section class="landing-section reveal-on-scroll">
+    <div class="section-title-wrapper">
+        <div class="section-eyebrow"><i class="bi bi-gear-wide-connected"></i> Process</div>
+        <h2 class="section-main-title">How It Works</h2>
+        <p class="section-subtitle">A simple 3-step process to transform your HR data into intelligence</p>
+    </div>
+
+    <div class="features-grid" style="max-width:1100px;">
+        <!-- Step 1 -->
+        <div class="feature-block" style="text-align:center;padding:3rem 2rem;">
+            <div style="font-size:3.5rem;font-weight:900;opacity:0.1;position:absolute;top:10px;right:20px;color:var(--primary);">01</div>
+            <div class="feature-icon" style="margin:0 auto 1.5rem;background:rgba(102,126,234,0.15);color:#a78bfa;">
+                <i class="bi bi-database-add"></i>
+            </div>
+            <h3 class="feature-title">Data Ingestion</h3>
+            <p class="feature-desc">Input employee details including salary, satisfaction, and role. Our system prepares the data for analysis.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="feature-block" style="text-align:center;padding:3rem 2rem;">
+            <div style="font-size:3.5rem;font-weight:900;opacity:0.1;position:absolute;top:10px;right:20px;color:rgba(79,172,254,0.8);">02</div>
+            <div class="feature-icon" style="margin:0 auto 1.5rem;background:rgba(79,172,254,0.15);color:#67e8f9;">
+                <i class="bi bi-cpu"></i>
+            </div>
+            <h3 class="feature-title">AI Processing</h3>
+            <p class="feature-desc">Our machine learning models analyze hundreds of data points to identify subtle patterns linked to attrition.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="feature-block" style="text-align:center;padding:3rem 2rem;">
+            <div style="font-size:3.5rem;font-weight:900;opacity:0.1;position:absolute;top:10px;right:20px;color:rgba(245,87,108,0.8);">03</div>
+            <div class="feature-icon" style="margin:0 auto 1.5rem;background:rgba(245,87,108,0.15);color:#f472b6;">
+                <i class="bi bi-lightning-charge"></i>
+            </div>
+            <h3 class="feature-title">Instant Insight</h3>
+            <p class="feature-desc">Receive a risk score and high-level reasoning for every employee, enabling immediate retention strategies.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ===== FEATURES / WHY US ===== -->
+<section class="landing-section reveal-on-scroll">
+    <div class="section-title-wrapper">
+        <div class="section-eyebrow"><i class="bi bi-award"></i> Capabilities</div>
+        <h2 class="section-main-title">Precision Attrition Forecasting</h2>
+        <p class="section-subtitle">Empowering HR departments with data-backed foresight</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-block">
+            <div class="feature-icon" style="background:rgba(102,126,234,0.1); color:#667eea;"><i class="bi bi-cpu"></i></div>
+            <h3 class="feature-title">Adaptive ML Models</h3>
+            <p class="feature-desc">Our models learn from over 30 distinct employee variables to ensure maximum prediction accuracy.</p>
+        </div>
+        <div class="feature-block">
+            <div class="feature-icon" style="background:rgba(79,172,254,0.1); color:#4facfe;"><i class="bi bi-shield-check"></i></div>
+            <h3 class="feature-title">Actionable Insights</h3>
+            <p class="feature-desc">Don't just see who might leave; understand WHY based on satisfaction and engagement metrics.</p>
+        </div>
+        <div class="feature-block">
+            <div class="feature-icon" style="background:rgba(245,87,108,0.1); color:#f5576c;"><i class="bi bi-lightning"></i></div>
+            <h3 class="feature-title">Real-time Updates</h3>
+            <p class="feature-desc">Metrics and risk scores update instantly as you manage your workforce data.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ===== CTA SECTION ===== -->
+<section class="landing-section reveal-on-scroll" style="margin-bottom:5rem;">
+    <div class="cta-banner">
+        <h2 class="cta-banner-title">Ready to stabilize your workforce?</h2>
+        <p class="cta-banner-desc">Join hundreds of HR professionals using Attrition AI to build better teams.</p>
+        <a href="{{ url_for('dashboard.attrition_analyzer') }}" class="cta-primary">
+            Start Analyzing Now <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    /* ===== SCROLL REVEAL LOGIC ===== */
+    const observerOptions = { threshold: 0.15 };
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                // If it has numbers, start counter
+                const nums = entry.target.querySelectorAll('.stat-number');
+                nums.forEach(n => animateCounter(n));
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => revealObserver.observe(el));
+
+    /* ===== COUNTER ANIMATION ===== */
+    function animateCounter(el) {
+        const target = parseFloat(el.dataset.count);
+        const suffix = el.dataset.suffix || '';
+        const duration = 2000;
+        const start = performance.now();
+        
+        function update(currentTime) {
+            const elapsed = currentTime - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = progress * target;
+            
+            el.innerText = (target % 1 === 0 ? Math.floor(current) : current.toFixed(1)) + suffix;
+            
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    }
+
+    /* ===== PARTICLE SYSTEM ===== */
+    const container = document.getElementById('particleContainer');
+    const particleCount = 25;
+
+    for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        p.style.opacity = Math.random();
+        container.appendChild(p);
+    }
+</script>
+{% endblock %}

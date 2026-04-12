@@ -9,10 +9,29 @@ from app.ml_model import predict
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 
-# ================= DASHBOARD =================
+# ================= HOME DASHBOARD (NEW LANDING PAGE) =================
 @dashboard_bp.route('/')
 @login_required
 def index():
+    employees = Employee.query.all()
+    total = len(employees)
+    attrited = len([e for e in employees if (e.attrition_risk_score or 0) >= 0.25])
+    attrition_rate = (attrited / total * 100) if total else 0
+    high_risk = len([e for e in employees if (e.attrition_risk_score or 0) >= 0.6])
+
+    return render_template(
+        'home.html',
+        total_employees=total,
+        total_attrited=attrited,
+        attrition_rate=round(attrition_rate, 2),
+        high_risk_count=high_risk
+    )
+
+
+# ================= ATTRITION ANALYZER (formerly Dashboard) =================
+@dashboard_bp.route('/attrition-analyzer')
+@login_required
+def attrition_analyzer():
     employees = Employee.query.all()
 
     total = len(employees)
@@ -64,7 +83,7 @@ def index():
         .limit(5).all()
 
     return render_template(
-        'dashboard.html',
+        'attrition_analyzer.html',
         total_employees=total,
         total_attrited=attrited,
         attrition_rate=round(attrition_rate, 2),
@@ -187,7 +206,7 @@ def add_employee():
         db.session.rollback()
         flash(f"❌ {str(e)}", "danger")
 
-    return redirect(url_for('dashboard.index'))
+    return redirect(url_for('dashboard.attrition_analyzer'))
 
 
 # ================= CONTACT =================
