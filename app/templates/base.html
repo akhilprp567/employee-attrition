@@ -625,6 +625,25 @@
                         </a>
                     </li>
 
+                    {% if current_user.username == 'admin' %}
+                    <li class="nav-item">
+                        <a id="nav-messages"
+                            class="nav-link {% if request.endpoint=='dashboard.messages' %}active{% endif %}"
+                            href="{{ url_for('dashboard.messages') }}">
+                            <i class="bi bi-chat-left-text me-1"></i>Messages
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="nav-users"
+                            class="nav-link {% if request.endpoint=='dashboard.users' %}active{% endif %}"
+                            href="{{ url_for('dashboard.users') }}">
+                            <i class="bi bi-person-badge me-1"></i>Users
+                        </a>
+                    </li>
+                    {% endif %}
+
+
+
                     <!-- USER AVATAR DROPDOWN -->
                     <li class="nav-item dropdown ms-2">
                         <a class="nav-link nav-user-link dropdown-toggle" href="#" data-bs-toggle="dropdown"

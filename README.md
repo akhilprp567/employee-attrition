@@ -1,4 +1,3 @@
-
 # Employee Attrition Prediction & HR Analytics System
 
 A comprehensive machine learning-based HR analytics platform for predicting employee attrition and providing actionable insights to HR departments.

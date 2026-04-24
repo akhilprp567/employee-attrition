@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app import db
 from app.models.employee import Employee
 from app.models.contact import Contact
+from app.models.user import User
 from sqlalchemy import func
 from app.ml_model import predict
 
@@ -241,6 +242,8 @@ def contact():
 def about():
     return render_template('about.html')
 
+
+
 # ================= DELETE =================
 @dashboard_bp.route('/delete-employee/<int:id>')
 @login_required
@@ -280,3 +283,27 @@ def edit_employee(id):
         flash(f"❌ {str(e)}", "danger")
 
     return redirect(url_for('dashboard.employees'))
+
+# ================= MESSAGES (ADMIN ONLY) =================
+@dashboard_bp.route('/messages')
+@login_required
+def messages():
+    if current_user.username != 'admin':
+        flash("You do not have permission to view this page.", "danger")
+        return redirect(url_for('dashboard.index'))
+    
+    contacts = Contact.query.order_by(Contact.id.desc()).all()
+    return render_template('messages.html', messages=contacts)
+
+# ================= USERS (ADMIN ONLY) =================
+@dashboard_bp.route('/users')
+@login_required
+def users():
+    if current_user.username != 'admin':
+        flash("You do not have permission to view this page.", "danger")
+        return redirect(url_for('dashboard.index'))
+    
+    # Query all users ordered by creation date descending
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('users.html', users=users)
+
