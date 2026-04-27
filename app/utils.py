@@ -4,8 +4,6 @@ Utility functions for the Employee Attrition System
 
 from datetime import datetime
 from app.models.employee import Employee
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 
 def calculate_attrition_risk(employee):
     """
